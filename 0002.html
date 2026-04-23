@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, minimum-scale=0.5">
+    <!-- 修复手机端按钮遮挡：优化视口设置 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.5, user-scalable=yes">
     <title>🐱 曼子疯狂点击 🐱</title>
     <style>
         * {
@@ -26,12 +27,15 @@
         .game-container {
             width: 100%;
             max-width: 900px;
-            height: 600px;
+            height: auto;
+            min-height: 100vh;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         .game-header {
@@ -40,50 +44,57 @@
             text-align: center;
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
         }
 
         .game-header h1 {
-            font-size: 2.2rem;
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
             margin-bottom: 5px;
         }
 
         .game-header p {
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
         }
 
         .stats-container {
             display: flex;
             justify-content: space-around;
+            flex-wrap: wrap;
             padding: 10px;
             background: rgba(255, 255, 255, 0.9);
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .stat-box {
             text-align: center;
-            padding: 8px 15px;
+            padding: 8px 12px;
             background: linear-gradient(135deg, #4d96ff, #6c5ce7);
             border-radius: 10px;
             color: white;
-            min-width: 120px;
+            min-width: 0;
+            flex: 1 0 22%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .stat-title {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             margin-bottom: 3px;
         }
 
         .stat-value {
-            font-size: 1.8rem;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
             font-weight: bold;
         }
 
         .game-area {
             width: 100%;
-            height: calc(100% - 180px);
+            flex: 1;
             position: relative;
             overflow: hidden;
             background: linear-gradient(180deg, #e6f7ff 0%, #c2e9fb 100%);
             user-select: none;
+            min-height: 300px;
         }
 
         .manzi {
@@ -133,18 +144,17 @@
             inset: 0;
         }
 
+        /* 修复按钮布局 - 确保不会被遮挡 */
         .controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            width: 100%;
             padding: 12px 20px;
             background: linear-gradient(to top, rgba(255,255,255,1), rgba(255,255,255,0.9));
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
             align-items: center;
-            z-index: 5;
+            flex-wrap: wrap;
+            flex-shrink: 0;
         }
 
         .btn {
@@ -156,6 +166,8 @@
             transition: all 0.2s;
             font-weight: bold;
             min-width: 120px;
+            flex: 1;
+            text-align: center;
         }
 
         .btn-start {
@@ -244,12 +256,13 @@
             border-radius: 20px;
             text-align: center;
             max-width: 400px;
+            width: 90%;
             animation: scaleIn 0.3s ease-out;
         }
 
         .game-over h2 {
             color: #ff6b6b;
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 20px;
         }
 
@@ -271,6 +284,8 @@
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 300px;
         }
 
         .level-badge {
@@ -285,21 +300,48 @@
             z-index: 5;
         }
 
+        /* 修复紧急按钮位置 */
         .emergency-button {
-            position: absolute;
-            bottom: 15px;
+            position: fixed;
+            bottom: 20px;
             right: 20px;
             background: #ff4757;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
             cursor: pointer;
             z-index: 20;
             display: none;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 加载动画 */
+        .loading-spinner {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            animation: spin 1s linear infinite;
+            color: #4d96ff;
+        }
+        
+        .load-error {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffcccc;
+            border-radius: 50%;
+            color: #ff0000;
+            font-size: 12px;
+            text-align: center;
+            padding: 5px;
         }
 
         @keyframes float {
@@ -363,18 +405,6 @@
             }
         }
 
-        /* 添加图片加载动画 */
-        .loading-spinner {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-            animation: spin 1s linear infinite;
-            color: #4d96ff;
-        }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -384,47 +414,32 @@
         @media screen and (max-width: 768px) {
             body {
                 padding: 5px;
-                align-items: flex-start;
             }
             
             .game-container {
-                height: auto;
-                min-height: 100vh;
-                border-radius: 0;
-                max-width: 100%;
+                border-radius: 10px;
+                min-height: 90vh;
             }
             
-            .game-header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .game-header p {
-                font-size: 0.8rem;
+            .game-header {
+                padding: 10px;
             }
             
             .stats-container {
                 padding: 8px 5px;
-                flex-wrap: wrap;
             }
             
             .stat-box {
                 padding: 6px 8px;
-                min-width: 0;
-                flex: 1 0 40%;
-                margin: 2px;
+                flex: 1 0 45%;
             }
             
             .stat-title {
                 font-size: 0.7rem;
             }
             
-            .stat-value {
-                font-size: 1.4rem;
-            }
-            
             .game-area {
-                height: calc(100vh - 220px);
-                min-height: 200px;
+                min-height: 250px;
             }
             
             .controls {
@@ -434,9 +449,8 @@
             
             .btn {
                 padding: 8px 10px;
-                font-size: 0.8rem;
+                font-size: 0.9rem;
                 min-width: 0;
-                flex: 1;
             }
             
             .manzi {
@@ -466,53 +480,36 @@
             }
             
             .emergency-button {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                z-index: 1000;
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .game-over-content {
+                padding: 20px;
+            }
+            
+            .game-over h2 {
+                font-size: 1.8rem;
+            }
+            
+            .start-hint {
+                font-size: 1rem;
+                padding: 15px;
             }
         }
 
         /* 超小屏幕手机（宽度小于480px） */
         @media screen and (max-width: 480px) {
-            .game-header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .game-header p {
-                font-size: 0.7rem;
-            }
-            
-            .stats-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
             .stat-box {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 8px 12px;
-            }
-            
-            .stat-title {
-                font-size: 0.8rem;
-                margin-bottom: 0;
-            }
-            
-            .stat-value {
-                font-size: 1.2rem;
-            }
-            
-            .controls {
-                flex-wrap: wrap;
-                padding-bottom: 50px;
+                flex: 1 0 100%;
             }
             
             .btn {
                 padding: 8px;
-                font-size: 0.75rem;
-                flex: 1 0 30%;
+                font-size: 0.85rem;
             }
             
             .manzi {
@@ -525,6 +522,28 @@
                 width: 55px;
                 height: 55px;
                 font-size: 28px;
+            }
+        }
+
+        /* 横屏模式优化 */
+        @media screen and (orientation: landscape) and (max-height: 600px) {
+            .game-container {
+                min-height: 100vh;
+            }
+            
+            .controls {
+                padding: 8px 10px;
+            }
+            
+            .btn {
+                padding: 6px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .emergency-button {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
             }
         }
     </style>
@@ -625,7 +644,7 @@
         // 特殊表情
         const specialEmojis = ['🐯', '🦁', '🔥', '⭐'];
 
-        // 修正后的曼子照片链接 - 使用完整正确的GitHub Raw链接
+        // 修复图片路径 - 使用相对路径
         const manziEmojis = [
             'Manzi.jpg',
             'Manzi01.jpg',
@@ -640,36 +659,58 @@
         // 图片加载状态跟踪
         const imageLoadStatus = new Map();
         let imagesPreloaded = false;
+        let imagesLoaded = 0;
+        let imagesFailed = 0;
 
         // 预加载所有图片
         function preloadImages() {
             console.log('开始预加载曼子图片...');
-            let loadedCount = 0;
             let totalImages = manziEmojis.length;
+            
+            if (totalImages === 0) {
+                console.error('没有找到曼子图片！请检查图片文件名');
+                imagesPreloaded = true;
+                return;
+            }
             
             manziEmojis.forEach((url, index) => {
                 const img = new Image();
-                img.crossOrigin = "anonymous"; // 处理跨域
                 
                 img.onload = function() {
-                    console.log(`✅ 图片 ${index+1} 加载成功: ${url.split('/').pop()}`);
+                    console.log(`✅ 图片 ${index+1} 加载成功: ${url}`);
                     imageLoadStatus.set(url, { loaded: true, width: img.width, height: img.height });
-                    loadedCount++;
+                    imagesLoaded++;
                     
-                    if (loadedCount === totalImages) {
+                    if (imagesLoaded + imagesFailed === totalImages) {
                         imagesPreloaded = true;
-                        console.log('✅ 所有图片预加载完成！');
+                        if (imagesFailed > 0) {
+                            console.warn(`⚠️ ${imagesFailed} 张图片加载失败，${imagesLoaded} 张图片加载成功`);
+                        } else {
+                            console.log('✅ 所有图片预加载完成！');
+                        }
                     }
                 };
                 
                 img.onerror = function() {
                     console.error(`❌ 图片 ${index+1} 加载失败: ${url}`);
                     imageLoadStatus.set(url, { loaded: false, error: '加载失败' });
-                    loadedCount++;
+                    imagesFailed++;
                     
-                    if (loadedCount === totalImages) {
+                    if (imagesLoaded + imagesFailed === totalImages) {
                         imagesPreloaded = true;
-                        console.log('⚠️ 部分图片加载失败，但可以开始游戏');
+                        console.warn(`⚠️ ${imagesFailed} 张图片加载失败，${imagesLoaded} 张图片加载成功`);
+                        
+                        // 如果有图片加载失败，显示提示
+                        if (imagesFailed > 0) {
+                            const hint = document.getElementById('startHint');
+                            if (hint && imagesLoaded === 0) {
+                                hint.innerHTML = '❌ 所有图片加载失败<br>请检查图片文件名和路径！<br><br>当前路径：<br>' + 
+                                    manziEmojis.map((url, i) => `${i+1}. ${url}`).join('<br>') + 
+                                    '<br><br>图片应与HTML文件在同一目录';
+                            } else if (hint) {
+                                hint.innerHTML = `✅ ${imagesLoaded} 张图片已加载<br>${imagesFailed} 张图片加载失败<br>点击开始游戏！`;
+                            }
+                        }
                     }
                 };
                 
@@ -681,7 +722,11 @@
                     if (!imageLoadStatus.has(url)) {
                         console.warn(`⏰ 图片 ${index+1} 加载超时: ${url}`);
                         imageLoadStatus.set(url, { loaded: false, error: '加载超时' });
-                        loadedCount++;
+                        imagesFailed++;
+                        
+                        if (imagesLoaded + imagesFailed === totalImages) {
+                            imagesPreloaded = true;
+                        }
                     }
                 }, 5000);
             });
@@ -696,31 +741,25 @@
             // 预加载图片
             preloadImages();
             
-            // 调整紧急按钮位置避免重叠
-            adjustEmergencyButtonPosition();
+            // 调整布局
+            adjustLayout();
         }
 
-        // 调整紧急按钮位置
-        function adjustEmergencyButtonPosition() {
-            const emergencyBtn = document.getElementById('emergencyBtn');
-            const resetBtn = document.getElementById('resetBtn');
+        // 调整布局
+        function adjustLayout() {
+            const gameArea = document.getElementById('gameArea');
+            const controls = document.querySelector('.controls');
             
-            if (emergencyBtn && resetBtn) {
-                if (isSmallScreen) {
-                    // 移动端：固定定位在右下角
-                    emergencyBtn.style.position = 'fixed';
-                    emergencyBtn.style.bottom = '20px';
-                    emergencyBtn.style.right = '20px';
-                } else {
-                    // 电脑端：绝对定位在容器内
-                    emergencyBtn.style.position = 'absolute';
-                    emergencyBtn.style.bottom = '15px';
-                    emergencyBtn.style.right = '20px';
-                    
-                    // 检查是否与重置按钮重叠
-                    if (window.innerWidth < 800) {
-                        emergencyBtn.style.right = '15px';
-                    }
+            if (gameArea && controls && isSmallScreen) {
+                // 计算可用高度
+                const viewportHeight = window.innerHeight;
+                const headerHeight = document.querySelector('.game-header').offsetHeight;
+                const statsHeight = document.querySelector('.stats-container').offsetHeight;
+                const controlsHeight = controls.offsetHeight;
+                
+                const availableHeight = viewportHeight - headerHeight - statsHeight - controlsHeight - 50;
+                if (availableHeight > 200) {
+                    gameArea.style.minHeight = availableHeight + 'px';
                 }
             }
         }
@@ -731,11 +770,18 @@
             
             // 检查图片加载状态
             if (!imagesPreloaded) {
-                console.log('图片尚未完全加载，请稍等...');
-                document.getElementById('startHint').innerHTML = '🔄 正在加载图片，请稍等...<br>🌀';
+                document.getElementById('startHint').innerHTML = '🔄 正在加载图片，请稍等...<br>🌀<br><small>已加载: ' + imagesLoaded + '/' + manziEmojis.length + '</small>';
                 setTimeout(() => {
-                    document.getElementById('startHint').innerHTML = '✅ 图片加载完成！<br>点击开始游戏按钮！';
-                }, 1000);
+                    if (!imagesPreloaded) {
+                        document.getElementById('startHint').innerHTML = '⏳ 图片加载较慢，再试试...<br>🌀';
+                    }
+                }, 2000);
+                return;
+            }
+            
+            // 检查是否有任何图片加载成功
+            if (imagesLoaded === 0) {
+                document.getElementById('startHint').innerHTML = '❌ 没有图片加载成功！<br>请检查：<br>1. 图片是否存在<br>2. 文件名是否正确<br>3. 路径是否正确';
                 return;
             }
             
@@ -765,9 +811,6 @@
             for (let i = 0; i < initialCount; i++) {
                 setTimeout(() => createManzi(), i * 50);
             }
-            
-            // 调整紧急按钮位置
-            adjustEmergencyButtonPosition();
             
             // 开始游戏循环
             gameInterval = setInterval(updateGame, 1000);
@@ -821,7 +864,7 @@
             const areaHeight = gameArea.offsetHeight;
             
             // 安全区域计算
-            const safeAreaHeight = areaHeight - GAME_CONFIG.buttonAreaHeight;
+            const safeAreaHeight = areaHeight - 100; // 留出底部空间
             
             if (safeAreaHeight <= 0) return;
             
@@ -849,7 +892,7 @@
                 manziEmojis[emojiIndex];
             
             // 创建曼子内容
-            if(emoji.includes('http')) {
+            if(emoji.includes('.jpg') || emoji.includes('.png')) {
                 // 这是图片链接
                 const imgStatus = imageLoadStatus.get(emoji);
                 
@@ -858,14 +901,13 @@
                     const img = document.createElement('img');
                     img.className = 'emoji-photo';
                     img.alt = '曼子';
-                    img.crossOrigin = "anonymous";
                     
                     img.onload = function() {
-                        console.log(`✅ 图片加载成功: ${emoji.split('/').pop()}`);
+                        // 图片加载成功
                     };
                     
                     img.onerror = function() {
-                        console.error(`❌ 图片加载失败: ${emoji.split('/').pop()}`);
+                        console.error(`图片加载失败: ${emoji}`);
                         // 加载失败时使用备用表情
                         manzi.innerHTML = '';
                         manzi.textContent = isSpecial ? '⭐' : '🐱';
@@ -875,12 +917,11 @@
                     manzi.innerHTML = '';
                     manzi.appendChild(img);
                 } else {
-                    // 图片未加载或加载失败，显示加载中
-                    manzi.innerHTML = '<div class="loading-spinner">🌀</div>';
+                    // 图片未加载或加载失败
+                    manzi.innerHTML = '<div class="load-error">❌<br>加载失败</div>';
                     
                     // 尝试重新加载
                     const img = new Image();
-                    img.crossOrigin = "anonymous";
                     
                     img.onload = function() {
                         if (manzi.parentNode) {
@@ -1152,9 +1193,11 @@
         // 调试函数：检查图片加载状态
         function checkImageStatus() {
             console.log('=== 图片加载状态 ===');
+            console.log(`已加载: ${imagesLoaded}/${manziEmojis.length}`);
+            console.log(`加载失败: ${imagesFailed}/${manziEmojis.length}`);
             manziEmojis.forEach((url, index) => {
                 const status = imageLoadStatus.get(url);
-                console.log(`${index+1}. ${url.split('/').pop()}:`, 
+                console.log(`${index+1}. ${url}:`, 
                     status ? (status.loaded ? '✅ 已加载' : `❌ 加载失败 (${status.error})`) : '⏳ 加载中');
             });
         }
@@ -1162,32 +1205,9 @@
         // 初始化游戏
         initGame();
 
-        // 添加键盘快捷键
-        document.addEventListener('keydown', function(e) {
-            if (e.key === ' ' || e.key === 'Spacebar') {
-                if (!document.getElementById('pauseBtn').disabled) {
-                    pauseGame();
-                }
-            } else if (e.key === 'r' || e.key === 'R') {
-                if (!document.getElementById('resetBtn').disabled) {
-                    resetGame();
-                }
-            } else if (e.key === 'Enter') {
-                if (!document.getElementById('startBtn').disabled) {
-                    startGame();
-                }
-            }
-        });
-
-        // 防止右键菜单
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
         // 窗口大小变化时重新计算
         window.addEventListener('resize', function() {
-            // 重新调整紧急按钮位置
-            adjustEmergencyButtonPosition();
+            adjustLayout();
         });
 
         // 初始生成提示
