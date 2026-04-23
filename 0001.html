@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 曼子专用惊喜页面 🎉</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow-x: hidden;
+            cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><text y="28">😂</text></svg>'), auto;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            animation: bounce 0.5s ease infinite alternate;
+            margin-bottom: 20px;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .manzi-photo {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 8px dashed #fff;
+            object-fit: cover;
+            animation: spin 2s linear infinite;
+            margin: 20px 0;
+            box-shadow: 0 0 30px rgba(255,255,255,0.5);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .message-box {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            margin: 20px 0;
+            position: relative;
+            transform: rotate(-2deg);
+        }
+
+        .message-box::before {
+            content: "💩";
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 40px;
+            animation: poopFloat 1s ease-in-out infinite;
+        }
+
+        @keyframes poopFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .message-box p {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .prank-btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-yes {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .btn-no {
+            background: linear-gradient(135deg, #e17055, #d63031);
+            color: white;
+            position: relative;
+        }
+
+        .prank-btn:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .counter {
+            font-size: 2rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 20px 0;
+        }
+
+        .floating-emojis {
+            position: fixed;
+            pointer-events: none;
+            font-size: 30px;
+            animation: floatUp 3s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-200px) scale(0.5);
+            }
+        }
+
+        .fake-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+            border: 5px solid #fdcb6e;
+        }
+
+        .fake-alert h2 {
+            color: #e17055;
+            margin-bottom: 15px;
+        }
+
+        .fake-alert button {
+            padding: 10px 30px;
+            font-size: 1.1rem;
+            background: #0984e3;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confettiFall 3s linear forwards;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .secret-message {
+            display: none;
+            background: #ffeaa7;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #2d3436;
+            animation: shake 0.5s ease infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .meme-text {
+            font-size: 1.5rem;
+            color: #fff;
+            text-shadow: 2px 2px 4px #000;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        .click-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: #fdcb6e;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎊 曼子！恭喜你！🎊</h1>
+        
+<img src="https://gitee.com/zeke269419/zp/raw/master/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260422114955_3924_141.jpg" 
+             alt="曼子照片" 
+             class="manzi-photo"
+             id="manziImg">
+
+        <div class="message-box">
+            <p>
+                🏆 <strong>您已被选为「宇宙第一可爱」！</strong><br><br>
+                经过全球 999 亿人的投票表决<br>
+                一致认为曼子是：<br>
+                <span style="color: #e17055; font-size: 1.5rem;">👑 超级无敌可爱小可爱 👑</span><br><br>
+                请点击下面的按钮领取奖品！
+            </p>
+        </div>
+
+        <div class="meme-text">"曼子：我什么都没做，就赢了"</div>
+
+        <div class="btn-group">
+            <button class="prank-btn btn-yes" onclick="handleYes()">
+                🎁 我要领奖！
+            </button>
+            <button class="prank-btn btn-no" id="noBtn" onmouseover="runAway(this)">
+                ❌ 我才不要
+            </button>
+        </div>
+
+        <div class="counter">
+            🔥 已有 <span id="clickCount">0</span> 人羡慕曼子 🔥
+        </div>
+
+        <button class="prank-btn" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white;" 
+                onclick="showSecret()">
+            🔓 点击查看曼子的秘密
+        </button>
+
+        <div class="secret-message" id="secretMsg">
+            🤫 曼子的秘密就是...<br>
+            其实曼子真的很可爱！<br>
+            （这不是秘密吗？）
+        </div>
+
+        <div class="meme-text" style="margin-top: 30px;">
+            "当你以为这是个正经网页的时候..." 😏
+        </div>
+    </div>
+
+    <div class="fake-alert" id="fakeAlert">
+        <h2>⚠️ 系统提示 ⚠️</h2>
+        <p id="alertText">检测到曼子正在偷笑！</p>
+        <button onclick="closeAlert()">好吧我承认 😅</button>
+    </div>
+
+    <div class="click-counter">
+        🖱️ 点击次数: <span id="totalClicks">0</span>
+    </div>
+
+    <script>
+        let clickCount = 0;
+        let totalClicks = 0;
+        let noBtnEscapes = 0;
+
+        // 点击计数
+        document.addEventListener('click', function(e) {
+            totalClicks++;
+            document.getElementById('totalClicks').textContent = totalClicks;
+            
+            // 创建漂浮表情
+            createFloatingEmoji(e.clientX, e.clientY);
+        });
+
+        function createFloatingEmoji(x, y) {
+            const emojis = ['😂', '🤣', '😭', '🙈', '🐱', '🦄', '🌈', '✨', '🎉', '🍕'];
+            const emoji = document.createElement('div');
+            emoji.className = 'floating-emojis';
+            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            emoji.style.left = x + 'px';
+            emoji.style.top = y + 'px';
+            document.body.appendChild(emoji);
+            
+            setTimeout(() => emoji.remove(), 3000);
+        }
+
+        function handleYes() {
+            clickCount++;
+            document.getElementById('clickCount').textContent = clickCount;
+            
+            // 彩纸效果
+            for (let i = 0; i < 50; i++) {
+                setTimeout(createConfetti, i * 30);
+            }
+            
+            // 显示假弹窗
+            const messages = [
+                "曼子太贪心了！还想领奖？",
+                "系统崩溃！因为曼子太可爱了！",
+                "警告：曼子正在散发魅力！",
+                "错误 404：找不到比曼子更可爱的人！",
+                "恭喜！你获得了「最可爱」称号！"
+            ];
+            document.getElementById('alertText').textContent = messages[Math.floor(Math.random() * messages.length)];
+            document.getElementById('fakeAlert').style.display = 'block';
+            
+            // 图片旋转加速
+            document.getElementById('manziImg').style.animationDuration = (2 - clickCount * 0.2) + 's';
+        }
+
+        function runAway(btn) {
+            noBtnEscapes++;
+            
+            if (noBtnEscapes > 5) {
+                btn.textContent = '😭 我不跑了';
+                btn.onmouseover = null;
+                btn.style.position = 'static';
+                return;
+            }
+            
+            const x = Math.random() * (window.innerWidth - 200);
+            const y = Math.random() * (window.innerHeight - 100);
+            btn.style.position = 'fixed';
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+            btn.style.zIndex = '999';
+        }
+
+        function closeAlert() {
+            document.getElementById('fakeAlert').style.display = 'none';
+        }
+
+        function showSecret() {
+            const secret = document.getElementById('secretMsg');
+            secret.style.display = secret.style.display === 'none' ? 'block' : 'none';
+            
+            // 震动效果
+            document.body.style.animation = 'none';
+            setTimeout(() => {
+                document.body.style.animation = 'gradientShift 3s ease infinite';
+            }, 100);
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#00b894'];
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * window.innerWidth + 'px';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            confetti.style.width = (Math.random() * 10 + 5) + 'px';
+            confetti.style.height = confetti.style.width;
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 3000);
+        }
+
+        // 随机显示假弹窗
+        setInterval(() => {
+            if (Math.random() > 0.95 && document.getElementById('fakeAlert').style.display === 'none') {
+                document.getElementById('alertText').textContent = '系统提示：曼子正在想你~';
+                document.getElementById('fakeAlert').style.display = 'block';
+            }
+        }, 10000);
+
+        // 初始彩纸
+        setTimeout(() => {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(createConfetti, i * 100);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
