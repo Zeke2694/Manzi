@@ -590,7 +590,8 @@
             <div class="start-hint" id="startHint">
                 🎮 点击"开始游戏"按钮开始！<br>
                 ⚡ 快速点击曼子获得连击！<br>
-                ⭐ 金色双倍得分！
+                ⭐ 金色双倍得分！<br>
+                <button class="btn start-btn" onclick="startGame()" style="margin-top: 15px; width: 100%;">开始游戏</button>
             </div>
         </div>
 
@@ -643,6 +644,9 @@
         
         // 特殊表情
         const specialEmojis = ['🐯', '🦁', '🔥', '⭐'];
+        
+        // 备用表情 - 图片加载失败时使用
+        const fallbackEmojis = ['🐱', '😺', '😸', '😹', '😻', '😼', '😽', '🙀'];
 
         // 修复图片路径 - 使用相对路径
         const manziEmojis = [
@@ -662,13 +666,13 @@
         let imagesLoaded = 0;
         let imagesFailed = 0;
 
-        // 预加载所有图片
+        // 优化预加载 - 只需要至少1张图片加载成功即可
         function preloadImages() {
-            console.log('开始预加载曼子图片...');
+            console.log('开始异步预加载曼子图片...');
             let totalImages = manziEmojis.length;
             
             if (totalImages === 0) {
-                console.error('没有找到曼子图片！请检查图片文件名');
+                console.error('没有找到曼子图片！');
                 imagesPreloaded = true;
                 return;
             }
@@ -677,58 +681,35 @@
                 const img = new Image();
                 
                 img.onload = function() {
-                    console.log(`✅ 图片 ${index+1} 加载成功: ${url}`);
+                    console.log(`✅ 图片加载成功: ${url}`);
                     imageLoadStatus.set(url, { loaded: true, width: img.width, height: img.height });
                     imagesLoaded++;
                     
-                    if (imagesLoaded + imagesFailed === totalImages) {
+                    // 只要有图片加载成功，就设置可以开始游戏
+                    if (!imagesPreloaded) {
                         imagesPreloaded = true;
-                        if (imagesFailed > 0) {
-                            console.warn(`⚠️ ${imagesFailed} 张图片加载失败，${imagesLoaded} 张图片加载成功`);
-                        } else {
-                            console.log('✅ 所有图片预加载完成！');
-                        }
+                        console.log(`✅ 已有 ${imagesLoaded} 张图片加载成功，可以立即开始游戏`);
+                    }
+                    
+                    if (imagesLoaded + imagesFailed === totalImages) {
+                        console.log(`图片加载完成: ${imagesLoaded} 成功, ${imagesFailed} 失败`);
                     }
                 };
                 
                 img.onerror = function() {
-                    console.error(`❌ 图片 ${index+1} 加载失败: ${url}`);
+                    console.warn(`⚠️ 图片加载失败: ${url}`);
                     imageLoadStatus.set(url, { loaded: false, error: '加载失败' });
                     imagesFailed++;
                     
-                    if (imagesLoaded + imagesFailed === totalImages) {
+                    // 如果所有图片都加载失败，也允许用表情开始游戏
+                    if (imagesLoaded + imagesFailed === totalImages && imagesLoaded === 0 && !imagesPreloaded) {
                         imagesPreloaded = true;
-                        console.warn(`⚠️ ${imagesFailed} 张图片加载失败，${imagesLoaded} 张图片加载成功`);
-                        
-                        // 如果有图片加载失败，显示提示
-                        if (imagesFailed > 0) {
-                            const hint = document.getElementById('startHint');
-                            if (hint && imagesLoaded === 0) {
-                                hint.innerHTML = '❌ 所有图片加载失败<br>请检查图片文件名和路径！<br><br>当前路径：<br>' + 
-                                    manziEmojis.map((url, i) => `${i+1}. ${url}`).join('<br>') + 
-                                    '<br><br>图片应与HTML文件在同一目录';
-                            } else if (hint) {
-                                hint.innerHTML = `✅ ${imagesLoaded} 张图片已加载<br>${imagesFailed} 张图片加载失败<br>点击开始游戏！`;
-                            }
-                        }
+                        console.log('所有图片加载失败，但允许用表情开始游戏');
                     }
                 };
                 
-                // 开始加载
+                // 开始异步加载
                 img.src = url;
-                
-                // 设置超时检测
-                setTimeout(() => {
-                    if (!imageLoadStatus.has(url)) {
-                        console.warn(`⏰ 图片 ${index+1} 加载超时: ${url}`);
-                        imageLoadStatus.set(url, { loaded: false, error: '加载超时' });
-                        imagesFailed++;
-                        
-                        if (imagesLoaded + imagesFailed === totalImages) {
-                            imagesPreloaded = true;
-                        }
-                    }
-                }, 5000);
             });
         }
 
@@ -736,10 +717,14 @@
         function initGame() {
             document.getElementById('highScore').textContent = highScore;
             document.getElementById('finalHighScore').textContent = highScore;
+            
+            // 立即显示开始提示，不等待图片
             document.getElementById('startHint').style.display = 'block';
             
-            // 预加载图片
-            preloadImages();
+            // 在后台异步预加载图片
+            setTimeout(() => {
+                preloadImages();
+            }, 100);
             
             // 调整布局
             adjustLayout();
@@ -751,7 +736,6 @@
             const controls = document.querySelector('.controls');
             
             if (gameArea && controls && isSmallScreen) {
-                // 计算可用高度
                 const viewportHeight = window.innerHeight;
                 const headerHeight = document.querySelector('.game-header').offsetHeight;
                 const statsHeight = document.querySelector('.stats-container').offsetHeight;
@@ -764,26 +748,9 @@
             }
         }
 
-        // 开始游戏
+        // 开始游戏 - 优化：不再等待图片预加载
         function startGame() {
             if (gameActive) return;
-            
-            // 检查图片加载状态
-            if (!imagesPreloaded) {
-                document.getElementById('startHint').innerHTML = '🔄 正在加载图片，请稍等...<br>🌀<br><small>已加载: ' + imagesLoaded + '/' + manziEmojis.length + '</small>';
-                setTimeout(() => {
-                    if (!imagesPreloaded) {
-                        document.getElementById('startHint').innerHTML = '⏳ 图片加载较慢，再试试...<br>🌀';
-                    }
-                }, 2000);
-                return;
-            }
-            
-            // 检查是否有任何图片加载成功
-            if (imagesLoaded === 0) {
-                document.getElementById('startHint').innerHTML = '❌ 没有图片加载成功！<br>请检查：<br>1. 图片是否存在<br>2. 文件名是否正确<br>3. 路径是否正确';
-                return;
-            }
             
             gameActive = true;
             timeLeft = GAME_CONFIG.totalTime;
@@ -806,10 +773,10 @@
             // 清空现有曼子
             clearAllManzis();
             
-            // 立即生成曼子
-            const initialCount = isSmallScreen ? 8 : 10;
+            // 减少初始生成的曼子数量，提高首次加载速度
+            const initialCount = isSmallScreen ? 3 : 5;
             for (let i = 0; i < initialCount; i++) {
-                setTimeout(() => createManzi(), i * 50);
+                setTimeout(() => createManzi(), i * 100);
             }
             
             // 开始游戏循环
@@ -850,7 +817,7 @@
             createManzi();
         }
 
-        // 创建曼子
+        // 创建曼子 - 优化：添加图片加载失败时的备用表情
         function createManzi() {
             const gameArea = document.getElementById('gameArea');
             if (!gameArea) return;
@@ -885,67 +852,29 @@
             manzi.style.left = Math.max(5, x) + 'px';
             manzi.style.top = Math.max(5, y) + 'px';
             
-            // 随机表情
-            const emojiIndex = Math.floor(Math.random() * manziEmojis.length);
-            const emoji = isSpecial ? 
-                specialEmojis[Math.floor(Math.random() * specialEmojis.length)] : 
-                manziEmojis[emojiIndex];
+            // 随机选择图片或表情
+            const randomIndex = Math.floor(Math.random() * manziEmojis.length);
+            const imageUrl = manziEmojis[randomIndex];
             
-            // 创建曼子内容
-            if(emoji.includes('.jpg') || emoji.includes('.png')) {
-                // 这是图片链接
-                const imgStatus = imageLoadStatus.get(emoji);
-                
-                if (imgStatus && imgStatus.loaded) {
-                    // 图片已加载，直接显示
-                    const img = document.createElement('img');
-                    img.className = 'emoji-photo';
-                    img.alt = '曼子';
-                    
-                    img.onload = function() {
-                        // 图片加载成功
-                    };
-                    
-                    img.onerror = function() {
-                        console.error(`图片加载失败: ${emoji}`);
-                        // 加载失败时使用备用表情
-                        manzi.innerHTML = '';
-                        manzi.textContent = isSpecial ? '⭐' : '🐱';
-                    };
-                    
-                    img.src = emoji;
-                    manzi.innerHTML = '';
-                    manzi.appendChild(img);
-                } else {
-                    // 图片未加载或加载失败
-                    manzi.innerHTML = '<div class="load-error">❌<br>加载失败</div>';
-                    
-                    // 尝试重新加载
-                    const img = new Image();
-                    
-                    img.onload = function() {
-                        if (manzi.parentNode) {
-                            const loadedImg = document.createElement('img');
-                            loadedImg.className = 'emoji-photo';
-                            loadedImg.alt = '曼子';
-                            loadedImg.src = emoji;
-                            manzi.innerHTML = '';
-                            manzi.appendChild(loadedImg);
-                        }
-                    };
-                    
-                    img.onerror = function() {
-                        if (manzi.parentNode) {
-                            manzi.innerHTML = '';
-                            manzi.textContent = isSpecial ? '⭐' : '🐱';
-                        }
-                    };
-                    
-                    img.src = emoji;
-                }
+            // 检查图片加载状态
+            const imgStatus = imageLoadStatus.get(imageUrl);
+            
+            if (imgStatus && imgStatus.loaded) {
+                // 图片已加载成功
+                const img = document.createElement('img');
+                img.className = 'emoji-photo';
+                img.alt = '曼子';
+                img.src = imageUrl;
+                manzi.innerHTML = '';
+                manzi.appendChild(img);
             } else {
-                // 这是表情符号
-                manzi.textContent = emoji;
+                // 图片未加载或加载失败，使用备用表情
+                if (isSpecial) {
+                    manzi.textContent = specialEmojis[Math.floor(Math.random() * specialEmojis.length)];
+                } else {
+                    const randomEmoji = fallbackEmojis[Math.floor(Math.random() * fallbackEmojis.length)];
+                    manzi.textContent = randomEmoji;
+                }
             }
 
             // 点击事件
@@ -1190,18 +1119,6 @@
             document.getElementById('emergencyBtn').style.display = 'none';
         }
 
-        // 调试函数：检查图片加载状态
-        function checkImageStatus() {
-            console.log('=== 图片加载状态 ===');
-            console.log(`已加载: ${imagesLoaded}/${manziEmojis.length}`);
-            console.log(`加载失败: ${imagesFailed}/${manziEmojis.length}`);
-            manziEmojis.forEach((url, index) => {
-                const status = imageLoadStatus.get(url);
-                console.log(`${index+1}. ${url}:`, 
-                    status ? (status.loaded ? '✅ 已加载' : `❌ 加载失败 (${status.error})`) : '⏳ 加载中');
-            });
-        }
-
         // 初始化游戏
         initGame();
 
@@ -1212,9 +1129,6 @@
 
         // 初始生成提示
         document.getElementById('startHint').style.display = 'block';
-
-        // 调试按钮：检查图片状态
-        window.checkImages = checkImageStatus;
     </script>
 </body>
 </html>
