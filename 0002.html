@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐱 曼子疯狂点击 🐱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-family: 'Microsoft YaHei', 'Arial Rounded MT Bold', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: manipulation;
+            overflow: hidden;
+        }
+        .emoji-photo {
+        /* 填满整个圆形 */
+        width: 100%;
+        height: 100%;
+        /* 不变形，自动裁剪居中铺满 */
+        object-fit: cover;
+        /* 圆形裁剪，完美贴合外圈 */
+        border-radius: 50%;
+        /* 消除边距偏移 */
+        vertical-align: middle;
+        display: block;
+        margin: 0;
+        padding: 0;
+        }
+        .game-container {
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .game-header {
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            padding: 15px;
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+
+        .game-header p {
+            font-size: 0.9rem;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #4d96ff, #6c5ce7);
+            border-radius: 10px;
+            color: white;
+            min-width: 120px;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .game-area {
+            width: 100%;
+            height: calc(100% - 180px);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #e6f7ff 0%, #c2e9fb 100%);
+            user-select: none;
+        }
+
+        .manzi {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            animation: float 2s ease-in-out infinite;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            transform-origin: center;
+        }
+
+        .manzi.normal {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+        }
+
+        .manzi.special {
+            background: linear-gradient(135deg, #ffd93d, #ff6b6b);
+            width: 70px;
+            height: 70px;
+            font-size: 35px;
+            box-shadow: 0 0 20px #ffd93d;
+        }
+
+        .manzi:hover {
+            transform: scale(1.1);
+        }
+
+        .manzi:active {
+            transform: scale(0.85);
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: linear-gradient(to top, rgba(255,255,255,1), rgba(255,255,255,0.9));
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .btn-pause {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .timer-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            position: relative;
+        }
+
+        .timer-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #4d96ff);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .score-popup {
+            position: absolute;
+            font-weight: bold;
+            animation: scoreFloat 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 1000;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .combo-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            color: #ff6b6b;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .combo-indicator.active {
+            opacity: 1;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .game-over-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .game-over h2 {
+            color: #ff6b6b;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .game-over p {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .start-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #4d96ff;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .level-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 5;
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) scale(1);
+            }
+            50% { 
+                transform: translateY(-8px) scale(1.05);
+            }
+        }
+
+        @keyframes scoreFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(1.3);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 20px;
+            animation: particleFloat 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0.5) rotate(180deg);
+            }
+        }
+
+        .emergency-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 20;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="timer-bar-container">
+            <div class="timer-bar" id="timerBar"></div>
+        </div>
+        
+        <div class="level-badge">
+            关卡: <span id="level">1</span>
+        </div>
+        
+        <div class="combo-indicator" id="comboIndicator">
+            连击: <span id="comboDisplay">0</span>
+        </div>
+
+        <div class="game-header">
+            <h1>🐱 曼子疯狂点击 🐱</h1>
+            <p>点击曼子得分！金色曼子2分！60秒挑战高分！</p>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-title">🎯 当前分数</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">⏱️ 剩余时间</div>
+                <div class="stat-value" id="time">60</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">🔥 连击数</div>
+                <div class="stat-value" id="combo">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">🏆 最高分</div>
+                <div class="stat-value" id="highScore">0</div>
+            </div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="start-hint" id="startHint">
+                🎮 点击"开始游戏"按钮开始！<br>
+                ⚡ 快速点击曼子获得连击！<br>
+                ⭐ 金色双倍得分！
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-start" id="startBtn" onclick="startGame()">▶️ 开始游戏</button>
+            <button class="btn btn-pause" id="pauseBtn" onclick="pauseGame()" disabled>⏸️ 暂停</button>
+            <button class="btn btn-reset" id="resetBtn" onclick="resetGame()" disabled>🔄 重置</button>
+        </div>
+
+        <button class="emergency-button" id="emergencyBtn" onclick="clearAllManzis()" title="清除所有曼子">🗑️</button>
+
+        <div class="game-over" id="gameOver">
+            <div class="game-over-content">
+                <h2>🎮 游戏结束！</h2>
+                <p>最终得分: <span id="finalScore">0</span></p>
+                <p>最高分: <span id="finalHighScore">0</span></p>
+                <button class="btn btn-start" onclick="resetGame()">再玩一次</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏核心配置
+        const GAME_CONFIG = {
+            totalTime: 60,
+            spawnInterval: 300, // 生成间隔300ms
+            maxManzis: 25, // 最大曼子数量增加到25
+            disappearTime: 1800, // 曼子消失时间
+            comboTimeout: 800, // 连击时间
+            buttonAreaHeight: 120, // 按钮区域高度增加到120px
+            manziSize: 60
+        };
+
+        // 游戏状态
+        let score = 0;
+        let timeLeft = GAME_CONFIG.totalTime;
+        let combo = 0;
+        let highScore = localStorage.getItem('manziHighScore') || 0;
+        let level = 1;
+        let gameActive = false;
+        let gameInterval = null;
+        let spawnInterval = null;
+        let manziCount = 0;
+        let lastClickTime = 0;
+        
+        // 曼子表情
+        // const manziEmojis = ['🐱', '😺', '😸', '😹', '😻', '😼', '😽'];
+        const specialEmojis = ['🐯', '🦁', '🔥', '⭐'];
+
+        // 曼子照片
+        const manziEmojis = [
+        'Manzi.jpg',
+        'Manzi01.jpg',
+        'Manzi02.jpg',
+        'Manzi03.jpg',
+        'Manzi04.jpg',
+        'Manzi05.jpg',
+        'Manzi06.jpg',
+        'Manzi07.jpg', 
+        ];
+
+        // 初始化
+        function initGame() {
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('finalHighScore').textContent = highScore;
+            document.getElementById('startHint').style.display = 'block';
+        }
+
+        // 开始游戏
+        function startGame() {
+            if (gameActive) return;
+            
+            gameActive = true;
+            timeLeft = GAME_CONFIG.totalTime;
+            score = 0;
+            combo = 0;
+            level = 1;
+            manziCount = 0;
+            
+            // 更新UI
+            updateUI();
+            document.getElementById('startHint').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('emergencyBtn').style.display = 'block';
+            
+            // 启用/禁用按钮
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('resetBtn').disabled = false;
+            document.getElementById('startBtn').disabled = true;
+            
+            // 清空现有曼子
+            clearAllManzis();
+            
+            // 立即生成10个曼子
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => createManzi(), i * 50);
+            }
+            
+            // 开始游戏循环
+            gameInterval = setInterval(updateGame, 1000);
+            spawnInterval = setInterval(spawnManzi, GAME_CONFIG.spawnInterval);
+        }
+
+        // 更新游戏状态
+        function updateGame() {
+            if (!gameActive) return;
+            
+            timeLeft--;
+            document.getElementById('time').textContent = timeLeft;
+            
+            // 更新进度条
+            const progress = (timeLeft / GAME_CONFIG.totalTime) * 100;
+            document.getElementById('timerBar').style.width = progress + '%';
+            
+            // 时间警告
+            if (timeLeft <= 10) {
+                document.getElementById('timerBar').style.background = 'linear-gradient(90deg, #ff0000, #ff4d4d)';
+                if (timeLeft <= 5 && timeLeft > 0) {
+                    document.getElementById('timerBar').style.animation = 'pulse 0.5s ease-in-out infinite';
+                }
+            }
+            
+            if (timeLeft <= 0) {
+                endGame();
+            }
+            
+            // 更新连击
+            updateCombo();
+        }
+
+        // 生成曼子
+        function spawnManzi() {
+            if (!gameActive || manziCount >= GAME_CONFIG.maxManzis) return;
+            createManzi();
+        }
+
+        // 创建曼子
+        function createManzi() {
+            const gameArea = document.getElementById('gameArea');
+            if (!gameArea) return;
+            
+            const isSpecial = Math.random() < 0.2; // 20%概率特殊曼子
+            const manzi = document.createElement('div');
+            manzi.className = isSpecial ? 'manzi special' : 'manzi normal';
+            
+            // 获取游戏区域尺寸
+            const areaWidth = gameArea.offsetWidth;
+            const areaHeight = gameArea.offsetHeight;
+            
+            // 安全区域计算 - 完全避开按钮区域
+            const safeAreaTop = 0;
+            const safeAreaLeft = 0;
+            const safeAreaWidth = areaWidth;
+            const safeAreaHeight = areaHeight - GAME_CONFIG.buttonAreaHeight; // 减去按钮区域高度
+            
+            if (safeAreaHeight <= 0) return; // 如果安全区域太小就不生成
+            
+            // 曼子尺寸
+            const manziWidth = isSpecial ? 70 : 60;
+            const manziHeight = isSpecial ? 70 : 60;
+            
+            // 确保曼子在安全区域内
+            const maxX = safeAreaWidth - manziWidth;
+            const maxY = safeAreaHeight - manziHeight;
+            
+            if (maxX <= 0 || maxY <= 0) return;
+            
+            // 随机位置
+            const x = Math.random() * maxX;
+            const y = Math.random() * maxY;
+            
+            manzi.style.left = Math.max(5, x) + 'px';
+            manzi.style.top = Math.max(5, y) + 'px';
+            
+            // 随机表情
+            const emoji = isSpecial ? 
+                specialEmojis[Math.floor(Math.random() * specialEmojis.length)] : 
+                manziEmojis[Math.floor(Math.random() * manziEmojis.length)];
+                
+     // 自动判断渲染：是照片就出图，是表情就出符号
+if(emoji.endsWith('.jpg') || emoji.endsWith('.png')){
+    // 渲染照片
+    manzi.innerHTML = `<img src="${emoji}" class="emoji-photo" alt="曼子">`;
+}else{
+    // 渲染原生表情
+    manzi.textContent = emoji;
+}
+
+            // 点击事件
+            manzi.onclick = function(e) {
+                e.stopPropagation();
+                handleClick(this, isSpecial);
+            };
+            
+            // 触摸事件
+            manzi.ontouchstart = function(e) {
+                e.preventDefault();
+                handleClick(this, isSpecial);
+            };
+            
+            // 添加到游戏区域
+            gameArea.appendChild(manzi);
+            manziCount++;
+            
+            // 自动消失
+            setTimeout(() => {
+                if (manzi.parentNode) {
+                    manzi.style.opacity = '0.3';
+                    setTimeout(() => {
+                        if (manzi.parentNode) {
+                            manzi.remove();
+                            manziCount--;
+                        }
+                    }, 200);
+                }
+            }, GAME_CONFIG.disappearTime);
+        }
+
+        // 处理点击
+        function handleClick(manzi, isSpecial) {
+            if (!gameActive) return;
+            
+            const now = Date.now();
+            if (now - lastClickTime < GAME_CONFIG.comboTimeout) {
+                combo++;
+            } else {
+                combo = 1;
+            }
+            lastClickTime = now;
+            
+            // 计算得分
+            const baseScore = isSpecial ? 2 : 1;
+            const points = baseScore * combo;
+            score += points;
+            
+            // 更新显示
+            updateUI();
+            
+            // 显示得分效果
+            showScoreEffect(manzi, points);
+            
+            // 粒子效果
+            createParticles(manzi, points);
+            
+            // 立即生成新曼子
+            if (manziCount < 8) {
+                createManzi();
+            }
+            
+            // 移除被点击的曼子
+            manzi.remove();
+            manziCount--;
+            
+            // 检查升级
+            checkLevelUp();
+        }
+
+        // 显示得分效果
+        function showScoreEffect(manzi, points) {
+            const rect = manzi.getBoundingClientRect();
+            const popup = document.createElement('div');
+            popup.className = 'score-popup';
+            popup.textContent = `+${points}`;
+            popup.style.left = rect.left + rect.width / 2 + 'px';
+            popup.style.top = rect.top + rect.height / 2 + 'px';
+            popup.style.color = combo >= 5 ? '#ffd93d' : (points >= 3 ? '#ff6b6b' : '#4d96ff');
+            popup.style.fontSize = Math.min(16 + points * 2, 30) + 'px';
+            
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 1000);
+        }
+
+        // 创建粒子效果
+        function createParticles(manzi, points) {
+            const rect = manzi.getBoundingClientRect();
+            const particleCount = 3 + Math.min(points, 6);
+            const colors = combo >= 5 ? 
+                ['#ffd93d', '#ff9a3d', '#ff6b6b'] : 
+                ['#ff6b6b', '#4d96ff', '#6BCB77'];
+                
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = combo >= 5 ? '🔥' : '✨';
+                particle.style.color = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.fontSize = 10 + Math.random() * 20 + 'px';
+                particle.style.left = rect.left + rect.width / 2 + 'px';
+                particle.style.top = rect.top + rect.height / 2 + 'px';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 20 + Math.random() * 40;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        // 更新UI
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('time').textContent = timeLeft;
+            document.getElementById('combo').textContent = combo;
+            document.getElementById('comboDisplay').textContent = combo;
+            document.getElementById('level').textContent = level;
+            
+            // 连击显示
+            const comboIndicator = document.getElementById('comboIndicator');
+            if (combo > 0) {
+                comboIndicator.classList.add('active');
+                comboIndicator.style.color = combo >= 5 ? '#ffd93d' : '#ff6b6b';
+                comboIndicator.style.fontSize = combo >= 8 ? '1.3rem' : '1rem';
+            } else {
+                comboIndicator.classList.remove('active');
+            }
+        }
+
+        // 更新连击
+        function updateCombo() {
+            if (combo > 0 && Date.now() - lastClickTime > GAME_CONFIG.comboTimeout) {
+                combo = 0;
+                updateUI();
+            }
+        }
+
+        // 检查升级
+        function checkLevelUp() {
+            const newLevel = Math.floor(score / 50) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                
+                // 更新生成速度
+                clearInterval(spawnInterval);
+                const newSpawnInterval = Math.max(150, GAME_CONFIG.spawnInterval - (level - 1) * 25);
+                spawnInterval = setInterval(spawnManzi, newSpawnInterval);
+                
+                // 显示升级效果
+                showLevelUpEffect();
+            }
+        }
+
+        // 显示升级效果
+        function showLevelUpEffect() {
+            const effect = document.createElement('div');
+            effect.textContent = `🎉 等级 ${level}！`;
+            effect.style.position = 'absolute';
+            effect.style.top = '50%';
+            effect.style.left = '50%';
+            effect.style.transform = 'translate(-50%, -50%)';
+            effect.style.fontSize = '3rem';
+            effect.style.fontWeight = 'bold';
+            effect.style.color = '#ffd93d';
+            effect.style.textShadow = '0 0 20px rgba(255, 107, 107, 0.8)';
+            effect.style.zIndex = '999';
+            effect.style.pointerEvents = 'none';
+            
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                effect.style.transition = 'all 0.5s';
+                effect.style.opacity = '0';
+                effect.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                setTimeout(() => effect.remove(), 500);
+            }, 1000);
+        }
+
+        // 暂停游戏
+        function pauseGame() {
+            if (!gameActive) {
+                // 继续游戏
+                gameActive = true;
+                document.getElementById('pauseBtn').textContent = '⏸️ 暂停';
+                gameInterval = setInterval(updateGame, 1000);
+                spawnInterval = setInterval(spawnManzi, Math.max(150, GAME_CONFIG.spawnInterval - (level - 1) * 25));
+            } else {
+                // 暂停游戏
+                gameActive = false;
+                document.getElementById('pauseBtn').textContent = '▶️ 继续';
+                clearInterval(gameInterval);
+                clearInterval(spawnInterval);
+            }
+        }
+
+        // 重置游戏
+        function resetGame() {
+            clearInterval(gameInterval);
+            clearInterval(spawnInterval);
+            gameActive = false;
+            document.getElementById('pauseBtn').textContent = '⏸️ 暂停';
+            document.getElementById('timerBar').style.background = 'linear-gradient(90deg, #ff6b6b, #4d96ff)';
+            document.getElementById('timerBar').style.animation = 'none';
+            startGame();
+        }
+
+        // 清除所有曼子
+        function clearAllManzis() {
+            const manzis = document.querySelectorAll('.manzi');
+            manzis.forEach(manzi => manzi.remove());
+            manziCount = 0;
+        }
+
+        // 结束游戏
+        function endGame() {
+            gameActive = false;
+            clearInterval(gameInterval);
+            clearInterval(spawnInterval);
+            
+            clearAllManzis();
+            
+            // 更新最高分
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('manziHighScore', highScore);
+            }
+            
+            // 显示结束界面
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalHighScore').textContent = highScore;
+            document.getElementById('gameOver').style.display = 'flex';
+            document.getElementById('highScore').textContent = highScore;
+            
+            // 重置按钮状态
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('resetBtn').disabled = false;
+            document.getElementById('emergencyBtn').style.display = 'none';
+        }
+
+        // 初始化游戏
+        initGame();
+
+        // 添加键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                // 空格键暂停/继续
+                if (!document.getElementById('pauseBtn').disabled) {
+                    pauseGame();
+                }
+            } else if (e.key === 'r' || e.key === 'R') {
+                // R键重置游戏
+                if (!document.getElementById('resetBtn').disabled) {
+                    resetGame();
+                }
+            } else if (e.key === 'Enter') {
+                // Enter键开始游戏
+                if (!document.getElementById('startBtn').disabled) {
+                    startGame();
+                }
+            }
+        });
+
+        // 防止右键菜单
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // 初始生成提示
+        document.getElementById('startHint').style.display = 'block';
+    </script>
+</body>
+</html>
