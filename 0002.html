@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, minimum-scale=0.5">
     <title>🐱 曼子疯狂点击 🐱</title>
     <style>
         * {
@@ -12,44 +12,17 @@
         }
 
         body {
-  width: 100vw;
-  min-height: 100vh;
-  overflow-x: hidden;
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-  font-family: 'Microsoft YaHei', 'Arial Rounded MT Bold', system-ui,sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  touch-action: manipulation;
-  overflow: hidden;
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-family: 'Microsoft YaHei', 'Arial Rounded MT Bold', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: manipulation;
+            padding: 10px;
         }
-         /* 你的游戏容器 */
-    .game-container {
-  width: 100%;
-  max-width: 900px;
-  height: 600px;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  position: relative;
-    }
-    /* 曼子照片适配，完美撑满圆形 */
-    .emoji-photo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-      display: block;
-      position: absolute;
-      inset: 0;
-    }
-    /* 按钮适配手机 */
-    .btn-group button {
-      min-height: 50px;
-      font-size: 16px;
-    }
+
         .game-container {
             width: 100%;
             max-width: 900px;
@@ -104,17 +77,14 @@
             font-weight: bold;
         }
 
-.game-area {
-  width: 100%;
-  height: calc(100% - 180px);
-  /* 新增：移动端自适应 */
-  height: calc(100% - 180px);
-  max-height: calc(100vh - 200px);
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(180deg, #e6f7ff 0%, #c2e9fb 100%);
-  user-select: none;
-}
+        .game-area {
+            width: 100%;
+            height: calc(100% - 180px);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #e6f7ff 0%, #c2e9fb 100%);
+            user-select: none;
+        }
 
         .manzi {
             position: absolute;
@@ -153,16 +123,28 @@
             transform: scale(0.85);
         }
 
+        .emoji-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+            position: absolute;
+            inset: 0;
+        }
+
+        /* 控制栏 - 修复重叠问题 */
         .controls {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 15px;
+            padding: 12px 20px;
             background: linear-gradient(to top, rgba(255,255,255,1), rgba(255,255,255,0.9));
             display: flex;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
+            align-items: center;
             z-index: 5;
         }
 
@@ -304,6 +286,24 @@
             z-index: 5;
         }
 
+        /* 紧急按钮 - 修复位置重叠 */
+        .emergency-button {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 20;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
         @keyframes float {
             0%, 100% { 
                 transform: translateY(0px) scale(1);
@@ -365,20 +365,204 @@
             }
         }
 
-        .emergency-button {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: #ff4757;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 20;
-            display: none;
+        /* ============================================
+           移动端响应式设计
+           ============================================ */
+
+        /* 小屏幕手机（宽度小于768px） */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 5px;
+                align-items: flex-start;
+            }
+            
+            .game-container {
+                height: auto;
+                min-height: 100vh;
+                border-radius: 0;
+                max-width: 100%;
+            }
+            
+            .game-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-header p {
+                font-size: 0.8rem;
+            }
+            
+            .stats-container {
+                padding: 8px 5px;
+                flex-wrap: wrap;
+            }
+            
+            .stat-box {
+                padding: 6px 8px;
+                min-width: 0;
+                flex: 1 0 40%;
+                margin: 2px;
+            }
+            
+            .stat-title {
+                font-size: 0.7rem;
+            }
+            
+            .stat-value {
+                font-size: 1.4rem;
+            }
+            
+            .game-area {
+                height: calc(100vh - 220px);
+                min-height: 200px;
+            }
+            
+            .controls {
+                padding: 10px 5px;
+                gap: 5px;
+            }
+            
+            .btn {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+                min-width: 0;
+                flex: 1;
+            }
+            
+            .manzi {
+                width: 50px;
+                height: 50px;
+                font-size: 25px;
+            }
+            
+            .manzi.special {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+            
+            .level-badge {
+                top: 10px;
+                left: 10px;
+                padding: 5px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .combo-indicator {
+                top: 10px;
+                right: 10px;
+                padding: 5px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .emergency-button {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 1000;
+            }
+        }
+
+        /* 超小屏幕手机（宽度小于480px） */
+        @media screen and (max-width: 480px) {
+            .game-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .game-header p {
+                font-size: 0.7rem;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .stat-box {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 12px;
+            }
+            
+            .stat-title {
+                font-size: 0.8rem;
+                margin-bottom: 0;
+            }
+            
+            .stat-value {
+                font-size: 1.2rem;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+                padding-bottom: 50px;
+            }
+            
+            .btn {
+                padding: 8px;
+                font-size: 0.75rem;
+                flex: 1 0 30%;
+            }
+            
+            .manzi {
+                width: 45px;
+                height: 45px;
+                font-size: 22px;
+            }
+            
+            .manzi.special {
+                width: 55px;
+                height: 55px;
+                font-size: 28px;
+            }
+        }
+
+        /* 电脑端小窗口适配（768-900px） */
+        @media screen and (min-width: 769px) and (max-width: 900px) {
+            .game-container {
+                max-width: 95vw;
+            }
+            
+            .controls {
+                padding: 10px 15px;
+            }
+            
+            .btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+                min-width: 110px;
+            }
+            
+            .emergency-button {
+                right: 15px;
+            }
+        }
+
+        /* 很窄的窗口（小于650px） */
+        @media screen and (max-width: 650px) {
+            .controls {
+                padding-bottom: 50px;
+            }
+        }
+
+        /* 横屏模式优化 */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            .controls {
+                padding: 8px 10px;
+            }
+            
+            .btn {
+                padding: 6px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .emergency-button {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+                bottom: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
@@ -447,15 +631,20 @@
     </div>
 
     <script>
-        // 游戏核心配置
+        // 检测设备和屏幕尺寸
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const isSmallScreen = window.innerWidth <= 768;
+        const isVerySmallScreen = window.innerWidth <= 480;
+        
+        // 动态配置游戏参数
         const GAME_CONFIG = {
             totalTime: 60,
-            spawnInterval: 300, // 生成间隔300ms
-            maxManzis: 25, // 最大曼子数量增加到25
-            disappearTime: 1800, // 曼子消失时间
-            comboTimeout: 800, // 连击时间
-            buttonAreaHeight: 120, // 按钮区域高度增加到120px
-            manziSize: 60
+            spawnInterval: isMobile ? 350 : 300,
+            maxManzis: isSmallScreen ? 20 : 25,
+            disappearTime: 1800,
+            comboTimeout: 800,
+            buttonAreaHeight: isSmallScreen ? 140 : 120,
+            manziSize: isSmallScreen ? 50 : 60
         };
 
         // 游戏状态
@@ -470,27 +659,54 @@
         let manziCount = 0;
         let lastClickTime = 0;
         
-        // 曼子表情
-        // const manziEmojis = ['🐱', '😺', '😸', '😹', '😻', '😼', '😽'];
+        // 特殊表情
         const specialEmojis = ['🐯', '🦁', '🔥', '⭐'];
 
         // 曼子照片
         const manziEmojis = [
-        'Manzi.jpg',
-        'Manzi01.jpg',
-        'Manzi02.jpg',
-        'Manzi03.jpg',
-        'Manzi04.jpg',
-        'Manzi05.jpg',
-        'Manzi06.jpg',
-        'Manzi07.jpg', 
+            'Manzi.jpg',
+            'Manzi01.jpg',
+            'Manzi02.jpg',
+            'Manzi03.jpg',
+            'Manzi04.jpg',
+            'Manzi05.jpg',
+            'Manzi06.jpg',
+            'Manzi07.jpg', 
         ];
 
-        // 初始化
+        // 初始化游戏
         function initGame() {
             document.getElementById('highScore').textContent = highScore;
             document.getElementById('finalHighScore').textContent = highScore;
             document.getElementById('startHint').style.display = 'block';
+            
+            // 调整紧急按钮位置避免重叠
+            adjustEmergencyButtonPosition();
+        }
+
+        // 调整紧急按钮位置
+        function adjustEmergencyButtonPosition() {
+            const emergencyBtn = document.getElementById('emergencyBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            if (emergencyBtn && resetBtn) {
+                if (isSmallScreen) {
+                    // 移动端：固定定位在右下角
+                    emergencyBtn.style.position = 'fixed';
+                    emergencyBtn.style.bottom = '20px';
+                    emergencyBtn.style.right = '20px';
+                } else {
+                    // 电脑端：绝对定位在容器内
+                    emergencyBtn.style.position = 'absolute';
+                    emergencyBtn.style.bottom = '15px';
+                    emergencyBtn.style.right = '20px';
+                    
+                    // 检查是否与重置按钮重叠
+                    if (window.innerWidth < 800) {
+                        emergencyBtn.style.right = '15px';
+                    }
+                }
+            }
         }
 
         // 开始游戏
@@ -518,10 +734,14 @@
             // 清空现有曼子
             clearAllManzis();
             
-            // 立即生成10个曼子
-            for (let i = 0; i < 10; i++) {
+            // 立即生成曼子
+            const initialCount = isSmallScreen ? 8 : 10;
+            for (let i = 0; i < initialCount; i++) {
                 setTimeout(() => createManzi(), i * 50);
             }
+            
+            // 调整紧急按钮位置
+            adjustEmergencyButtonPosition();
             
             // 开始游戏循环
             gameInterval = setInterval(updateGame, 1000);
@@ -566,7 +786,7 @@
             const gameArea = document.getElementById('gameArea');
             if (!gameArea) return;
             
-            const isSpecial = Math.random() < 0.2; // 20%概率特殊曼子
+            const isSpecial = Math.random() < 0.2;
             const manzi = document.createElement('div');
             manzi.className = isSpecial ? 'manzi special' : 'manzi normal';
             
@@ -574,20 +794,17 @@
             const areaWidth = gameArea.offsetWidth;
             const areaHeight = gameArea.offsetHeight;
             
-            // 安全区域计算 - 完全避开按钮区域
-            const safeAreaTop = 0;
-            const safeAreaLeft = 0;
-            const safeAreaWidth = areaWidth;
-            const safeAreaHeight = areaHeight - GAME_CONFIG.buttonAreaHeight; // 减去按钮区域高度
+            // 安全区域计算
+            const safeAreaHeight = areaHeight - GAME_CONFIG.buttonAreaHeight;
             
-            if (safeAreaHeight <= 0) return; // 如果安全区域太小就不生成
+            if (safeAreaHeight <= 0) return;
             
             // 曼子尺寸
             const manziWidth = isSpecial ? 70 : 60;
             const manziHeight = isSpecial ? 70 : 60;
             
             // 确保曼子在安全区域内
-            const maxX = safeAreaWidth - manziWidth;
+            const maxX = areaWidth - manziWidth;
             const maxY = safeAreaHeight - manziHeight;
             
             if (maxX <= 0 || maxY <= 0) return;
@@ -600,18 +817,17 @@
             manzi.style.top = Math.max(5, y) + 'px';
             
             // 随机表情
+            const emojiIndex = Math.floor(Math.random() * manziEmojis.length);
             const emoji = isSpecial ? 
                 specialEmojis[Math.floor(Math.random() * specialEmojis.length)] : 
-                manziEmojis[Math.floor(Math.random() * manziEmojis.length)];
+                manziEmojis[emojiIndex];
                 
-     // 自动判断渲染：是照片就出图，是表情就出符号
-if(emoji.endsWith('.jpg') || emoji.endsWith('.png')){
-    // 渲染照片
-    manzi.innerHTML = `<img src="${emoji}" class="emoji-photo" alt="曼子">`;
-}else{
-    // 渲染原生表情
-    manzi.textContent = emoji;
-}
+            // 自动判断渲染
+            if(emoji.endsWith('.jpg') || emoji.endsWith('.png')){
+                manzi.innerHTML = `<img src="${emoji}" class="emoji-photo" alt="曼子">`;
+            } else {
+                manzi.textContent = emoji;
+            }
 
             // 点击事件
             manzi.onclick = function(e) {
@@ -622,7 +838,7 @@ if(emoji.endsWith('.jpg') || emoji.endsWith('.png')){
             // 触摸事件
             manzi.ontouchstart = function(e) {
                 e.preventDefault();
-                e.stopPropagation(); // 新增
+                e.stopPropagation();
                 handleClick(this, isSpecial);
             };
             
@@ -861,17 +1077,14 @@ if(emoji.endsWith('.jpg') || emoji.endsWith('.png')){
         // 添加键盘快捷键
         document.addEventListener('keydown', function(e) {
             if (e.key === ' ' || e.key === 'Spacebar') {
-                // 空格键暂停/继续
                 if (!document.getElementById('pauseBtn').disabled) {
                     pauseGame();
                 }
             } else if (e.key === 'r' || e.key === 'R') {
-                // R键重置游戏
                 if (!document.getElementById('resetBtn').disabled) {
                     resetGame();
                 }
             } else if (e.key === 'Enter') {
-                // Enter键开始游戏
                 if (!document.getElementById('startBtn').disabled) {
                     startGame();
                 }
@@ -881,6 +1094,12 @@ if(emoji.endsWith('.jpg') || emoji.endsWith('.png')){
         // 防止右键菜单
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
+        });
+
+        // 窗口大小变化时重新计算
+        window.addEventListener('resize', function() {
+            // 重新调整紧急按钮位置
+            adjustEmergencyButtonPosition();
         });
 
         // 初始生成提示
