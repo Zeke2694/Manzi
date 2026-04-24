@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Heart Final Correct</title>
+<style>
+body { margin:0; background:#000; overflow:hidden; }
+</style>
+</head>
+<body>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158/build/three.min.js"></script>
+
+<script>
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 100);
+camera.position.z = 3;
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// ❤️ 3D心形
+function heart3D(x,y,z){
+    return Math.pow(x*x + y*y + z*z - 1, 3)
+         - x*x * z*z*z
+         - y*y * z*z*z;
+}
+
+// ================= 只采表面 =================
+const count = 30000;
+const positions = new Float32Array(count*3);
+const scales = new Float32Array(count);
+
+let i = 0;
+while(i < count){
+
+    let x = (Math.random()-0.5)*2;
+    let y = (Math.random()-0.5)*2;
+    let z = (Math.random()-0.5)*2;
+
+    let d = heart3D(x,y,z);
+
+    // 🎯 关键：只取“接近表面”的点
+    if(Math.abs(d) < 0.02){
+
+        positions[i*3] = x * 1.2;
+        positions[i*3+1] = y * 1.2;
+        positions[i*3+2] = z * 1.2;
+
+        scales[i] = Math.random();
+
+        i++;
+    }
+}
+
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.BufferAttribute(positions,3));
+geometry.setAttribute('aScale', new THREE.BufferAttribute(scales,1));
+
+// ================= Shader =================
+const material = new THREE.ShaderMaterial({
+    transparent:true,
+    depthWrite:false,
+    blending:THREE.AdditiveBlending,
+
+    uniforms:{
+        time:{value:0}
+    },
+
+    vertexShader:`
+        attribute float aScale;
+        uniform float time;
+        varying float vScale;
+
+        void main(){
+            vec3 pos = position;
+
+            // 💓 非抖动心跳
+            float beat = pow(sin(time*1.2), 4.0);
+
+            pos += normalize(pos) * beat * 0.02;
+
+            vScale = aScale;
+
+            vec4 mvPosition = modelViewMatrix * vec4(pos,1.0);
+
+            gl_PointSize = (3.0 + aScale*3.0) * (1.0 / -mvPosition.z);
+
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    `,
+
+    fragmentShader:`
+        varying float vScale;
+
+        void main(){
+            float d = length(gl_PointCoord - vec2(0.5));
+            float alpha = smoothstep(0.5, 0.0, d);
+
+            vec3 color = mix(
+                vec3(1.0,0.2,0.3),
+                vec3(1.0,0.6,0.8),
+                vScale
+            );
+
+            gl_FragColor = vec4(color, alpha);
+        }
+    `
+});
+
+const points = new THREE.Points(geometry, material);
+scene.add(points);
+
+// ================= 动画 =================
+function animate(){
+    requestAnimationFrame(animate);
+
+    material.uniforms.time.value += 0.02;
+
+    points.rotation.y += 0.01;
+    points.rotation.x += 0.003;
+
+    renderer.render(scene,camera);
+}
+animate();
+
+window.addEventListener("resize",()=>{
+    camera.aspect = innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+});
+</script>
+
+</body>
+</html>
