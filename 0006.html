@@ -438,9 +438,7 @@
             width: 50,
             height: 50,
             dy: 0,
-            dx: 0,
             jumpForce: -12,
-            horizontalBoost: 0.4, // 增加水平推进力
             grounded: false,
             color: '#FFD700',
             draw() {
@@ -475,13 +473,6 @@
                 // 应用重力
                 this.dy += gravity;
                 this.y += this.dy;
-                
-                // 跳跃时的水平推进
-                if (this.dy < 0) {
-                    this.dx = this.horizontalBoost;
-                } else {
-                    this.dx = 0;
-                }
                 
                 // 地面碰撞
                 const groundY = CANVAS_HEIGHT - 100 - this.height;
@@ -665,8 +656,6 @@
             // 更新曼子
             player.update();
             
-            // 应用水平速度
-            player.x += player.dx * 2.5; // 增加水平移动速度
 
             // 生成障碍物
             obstacleTimer++;
