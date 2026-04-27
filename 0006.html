@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐱 曼子冒险记 🐱</title>
+    <title>🐱 曼子冒险记 - 优化修复版</title>
     <style>
         * {
             margin: 0;
@@ -351,7 +351,6 @@
             <div class="title-area">
                 <span>🐱</span>
                 <span>曼子冒险记</span>
-                <span>🐱</span>
             </div>
             <div class="stats-row">
                 <div class="stat-box">
@@ -569,9 +568,9 @@
             }
         }
 
-        // 生成障碍物
+        // 生成障碍物 - 将原来的石头障碍物替换为花朵
         function spawnObstacle() {
-            const types = ['cactus', 'rock'];
+            const types = ['cactus', 'flower']; // 修改：石头改为花朵
             const type = types[Math.floor(Math.random() * types.length)];
             
             const obstacle = {
@@ -580,46 +579,62 @@
                 width: 30, // 减小障碍物宽度
                 height: type === 'cactus' ? 80 : 50,
                 type: type,
-                color: type === 'cactus' ? '#2D6A4F' : '#6C757D',
                 passed: false
             };
             
             obstacles.push(obstacle);
         }
 
-    // 生成糖果 - 修复版
-    function spawnCandy() {
-        // 确保糖果在人物可跳跃的高度范围内
-        const groundLevel = CANVAS_HEIGHT - 100; // 地面高度
-        const minY = groundLevel - 80;  // 离地面最高80像素
-        const maxY = groundLevel - 20;  // 离地面最低20像素
-        const candyY = Math.random() * (maxY - minY) + minY;
-        
-        candies.push({
-            x: CANVAS_WIDTH,
-            y: candyY,
-            width: 20,
-            height: 20,
-            collected: false
-        });
-    }
-
-    // 糖果收集检测
-    function checkCandyCollection() {
-        for (let i = candies.length - 1; i >= 0; i--) {
-            const candy = candies[i];
-            candy.x -= 3 * gameSpeed;
+        // 生成糖果 - 修复糖果生成位置
+        function spawnCandy() {
+            // 确保糖果在人物可跳跃的高度范围内
+            const groundLevel = CANVAS_HEIGHT - 100; // 地面高度
+            const minY = groundLevel - 80;  // 离地面最高80像素
+            const maxY = groundLevel - 20;  // 离地面最低20像素
+            const candyY = Math.random() * (maxY - minY) + minY;
             
-            // 收集糖果检测
-            if (!candy.collected && checkCollision(player, candy)) {
-                candy.collected = true;
-                score += 5;
-                candies.splice(i, 1);
-            } else if (candy.x + candy.width < 0) {
-                candies.splice(i, 1);
-            }
+            candies.push({
+                x: CANVAS_WIDTH,
+                y: candyY,
+                width: 20,
+                height: 20,
+                collected: false
+            });
         }
-    }
+
+        // 绘制花朵障碍物
+        function drawFlower(x, y, width, height) {
+            ctx.save();
+            ctx.translate(x + width/2, y + height/2);
+            
+            // 花朵花心
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(0, 0, width/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 花瓣
+            ctx.fillStyle = '#FF6B9D';
+            for (let i = 0; i < 8; i++) {
+                ctx.save();
+                ctx.rotate(i * Math.PI / 4);
+                
+                // 绘制花瓣
+                ctx.beginPath();
+                ctx.ellipse(width/2, 0, width/2, height/3, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            // 花心细节
+            ctx.fillStyle = '#FF1493';
+            ctx.beginPath();
+            ctx.arc(0, 0, width/4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
 
         // 绘制跳跃特效
         function drawJumpEffect(x, y) {
@@ -654,7 +669,7 @@
 
             // 生成障碍物
             obstacleTimer++;
-            if (obstacleTimer > 200 - (gameSpeed * 10)) { // 进一步降低生成频率
+            if (obstacleTimer > 200 - (gameSpeed * 10)) { // 降低生成频率
                 spawnObstacle();
                 obstacleTimer = 0;
             }
@@ -730,16 +745,16 @@
             
             // 绘制障碍物
             obstacles.forEach(obs => {
-                ctx.fillStyle = obs.color;
                 if (obs.type === 'cactus') {
+                    // 绘制仙人掌
+                    ctx.fillStyle = '#2D6A4F';
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
                     ctx.fillStyle = '#2D6A4F';
                     ctx.fillRect(obs.x - 3, obs.y + 20, 3, 8);
                     ctx.fillRect(obs.x + obs.width, obs.y + 40, 3, 8);
                 } else {
-                    ctx.beginPath();
-                    ctx.arc(obs.x + obs.width/2, obs.y + obs.height/2, obs.width/2, 0, Math.PI * 2);
-                    ctx.fill();
+                    // 绘制花朵障碍物
+                    drawFlower(obs.x, obs.y, obs.width, obs.height);
                 }
             });
             
