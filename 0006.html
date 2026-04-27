@@ -587,16 +587,39 @@
             obstacles.push(obstacle);
         }
 
-        // 生成糖果
-        function spawnCandy() {
-            candies.push({
-                x: CANVAS_WIDTH,
-                y: Math.random() * (CANVAS_HEIGHT - 250) + 100,
-                width: 20,
-                height: 20,
-                collected: false
-            });
+    // 生成糖果 - 修复版
+    function spawnCandy() {
+        // 确保糖果在人物可跳跃的高度范围内
+        const groundLevel = CANVAS_HEIGHT - 100; // 地面高度
+        const minY = groundLevel - 80;  // 离地面最高80像素
+        const maxY = groundLevel - 20;  // 离地面最低20像素
+        const candyY = Math.random() * (maxY - minY) + minY;
+        
+        candies.push({
+            x: CANVAS_WIDTH,
+            y: candyY,
+            width: 20,
+            height: 20,
+            collected: false
+        });
+    }
+
+    // 糖果收集检测
+    function checkCandyCollection() {
+        for (let i = candies.length - 1; i >= 0; i--) {
+            const candy = candies[i];
+            candy.x -= 3 * gameSpeed;
+            
+            // 收集糖果检测
+            if (!candy.collected && checkCollision(player, candy)) {
+                candy.collected = true;
+                score += 5;
+                candies.splice(i, 1);
+            } else if (candy.x + candy.width < 0) {
+                candies.splice(i, 1);
+            }
         }
+    }
 
         // 绘制跳跃特效
         function drawJumpEffect(x, y) {
