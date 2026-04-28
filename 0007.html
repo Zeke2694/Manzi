@@ -22,6 +22,13 @@
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+
+
+  /* ⭐iPhone 刘海 + 底部白条安全区 */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   }
 
 canvas {
@@ -30,7 +37,6 @@ canvas {
   top: 0;
   width: 100vw;
   height: 100vh;
-  display: block;
 }
 
   #touch-ui {
@@ -38,6 +44,12 @@ canvas {
     inset: 0;
     pointer-events: none;
     display: none;
+    
+      /* ⭐关键 */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   }
 
   #rotate-tip {
@@ -83,19 +95,21 @@ canvas {
     pointer-events: none;
   }
 
-  #joystick {
-    position: absolute;
-    left: 18px;
-    bottom: 18px;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.10);
-    border: 1px solid rgba(255,255,255,0.22);
-    box-shadow: inset 0 0 20px rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.12);
-    pointer-events: auto;
-    touch-action: none;
-  }
+#joystick {
+  position: absolute;
+  left: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.12);
+
+  pointer-events: auto;
+  touch-action: none;
+}
 
   #stick {
     position: absolute;
@@ -110,15 +124,14 @@ canvas {
     pointer-events: none;
   }
 
-  #buttons {
-    position: absolute;
-    right: 28px;
-    bottom: 28px;
-    width: 200px;
-    height: 200px;
-    pointer-events: auto;
+#buttons {
+  position: absolute;
+  right: calc(28px + env(safe-area-inset-right));
+  bottom: calc(28px + env(safe-area-inset-bottom));
+  width: 200px;
+  height: 200px;
+  pointer-events: auto;
 }
-
 /* 统一按钮尺寸，避免“挤在一起”的视觉问题 */
 .btn {
     position: absolute;
@@ -394,30 +407,36 @@ canvas {
 (() => {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+  
+let W = window.innerWidth;
+let H = window.innerHeight;
 
     // ✅ ⭐这里插入 resizeCanvas（关键位置）
-  function resizeCanvas() {
-    const dpr = window.devicePixelRatio || 1;
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
 
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
+  W = window.innerWidth;
+  H = window.innerHeight;
 
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
 
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
 
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+window.addEventListener('resize', resizeCanvas);
+window.visualViewport?.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
   const touchUI = document.getElementById('touch-ui');
   const rotateTip = document.getElementById('rotate-tip');
   const joystick = document.getElementById('joystick');
   const stick = document.getElementById('stick');
   const actionButtons = Array.from(document.querySelectorAll('[data-action]'));
 
-let W = window.innerWidth;
-let H = window.innerHeight;
   const GROUND_Y = 450;
   const GRAVITY = 0.7;
   const FRICTION = 0.82;
