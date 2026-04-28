@@ -23,21 +23,21 @@
     height: 100vh;
     overflow: hidden;
 
-
-  /* ⭐iPhone 刘海 + 底部白条安全区 */
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
+    /* ⭐iPhone 刘海 + 底部白条安全区 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
-canvas {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-}
+  /* 修改1: canvas 改为百分比，基于父容器内容区域 */
+  canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%; /* 从 100vw 改为 100% */
+    height: 100%; /* 从 100vh 改为 100% */
+  }
 
   #touch-ui {
     position: absolute;
@@ -45,11 +45,11 @@ canvas {
     pointer-events: none;
     display: none;
     
-      /* ⭐关键 */
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
+    /* ⭐关键 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   #rotate-tip {
@@ -95,21 +95,19 @@ canvas {
     pointer-events: none;
   }
 
-#joystick {
-  position: absolute;
-  left: 18px;
-  bottom: calc(18px + env(safe-area-inset-bottom));
-
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.10);
-  border: 1px solid rgba(255,255,255,0.22);
-  box-shadow: inset 0 0 20px rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.12);
-
-  pointer-events: auto;
-  touch-action: none;
-}
+  #joystick {
+    position: absolute;
+    left: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow: inset 0 0 20px rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.12);
+    pointer-events: auto;
+    touch-action: none;
+  }
 
   #stick {
     position: absolute;
@@ -124,257 +122,77 @@ canvas {
     pointer-events: none;
   }
 
-#buttons {
-  position: absolute;
-  right: calc(28px + env(safe-area-inset-right));
-  bottom: calc(28px + env(safe-area-inset-bottom));
-  width: 200px;
-  height: 200px;
-  pointer-events: auto;
-}
-/* 统一按钮尺寸，避免“挤在一起”的视觉问题 */
-.btn {
+  #buttons {
     position: absolute;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.75), rgba(255,255,255,0.2));
-    color: #5f4361;
-    font-size: 12px;
-    font-weight: bold;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
-}
+    right: calc(28px + env(safe-area-inset-right));
+    bottom: calc(28px + env(safe-area-inset-bottom));
+    width: 200px;
+    height: 200px;
+    pointer-events: auto;
+  }
 
-/* 重开单独放远一点 */
-.btn[data-action="reset"] {
-    right: -10px;
-    bottom: 120px;
-    width: 40px;
-    height: 40px;
-    font-size: 10px;
-    opacity: 0.6;
-}
-
-.btn:active,
-.btn.active {
-    transform: scale(0.88);
-    background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0.4));
-}
-
-/* 更自然的“扇形分布”（类似王者） */
-.btn {
+  .btn {
     position: absolute;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: none;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.75), rgba(255,255,255,0.2));
-    color: #5f4361;
-    font-size: 11px;
-    font-weight: bold;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
-}
-
-/* 核心攻击键（最大，拇指主按） */
-.btn[data-action="light"] {
     width: 64px;
     height: 64px;
-    right: 0;
-    bottom: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.18);
+    color: #5f4361;
     font-size: 13px;
-}
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    touch-action: none;
+    transition: transform 0.08s ease, background 0.2s ease;
+  }
 
-/* 其他技能沿弧线展开（不对称，避免十字架） */
-.btn[data-action="heavy"] { right: 70px; bottom: 10px; }
-.btn[data-action="skill"] { right: 130px; bottom: 50px; }
-.btn[data-action="dash"] { right: 95px; bottom: 115px; }
+  /* 主攻击键 */
+  .btn[data-action="light"] {
+    width: 78px;
+    height: 78px;
+    right: 0;
+    bottom: 60px;
+  }
 
-/* 跳跃放更外侧 */
-.btn[data-action="jump"] {
+  /* 扇形布局 */
+  .btn[data-action="heavy"] {
+    right: 70px;
+    bottom: 20px;
+  }
+
+  .btn[data-action="skill"] {
+    right: 120px;
+    bottom: 70px;
+  }
+
+  .btn[data-action="dash"] {
+    right: 80px;
+    bottom: 130px;
+  }
+
+  /* 跳跃 */
+  .btn[data-action="jump"] {
     right: 150px;
     bottom: 120px;
-    width: 46px;
-    height: 46px;
-    font-size: 10px;
-    opacity: 0.9;
-}
+    width: 58px;
+    height: 58px;
+  }
 
-/* 重开彻底边缘化 */
-.btn[data-action="reset"] {
-    right: -6px;
-    bottom: 120px;
-    width: 36px;
-    height: 36px;
-    font-size: 9px;
-    opacity: 0.55;
-}
-
-.btn:active,
-.btn.active {
-    transform: scale(0.85);
-    background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0.4));
-}
-
-/* 更紧凑、更分散的布局 */
-.btn {
-    position: absolute;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(255,255,255,0.2));
-    color: #5f4361;
-    font-size: 12px;
-    font-weight: bold;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
-}
-
-
-
-/* 跳跃单独放外侧 */
-.btn[data-action="jump"] {
-    right: 130px;
-    bottom: 130px;
-    width: 50px;
-    height: 50px;
-    font-size: 11px;
-    opacity: 0.9;
-}
-
-/* 重开最小化 */
-.btn[data-action="reset"] {
+  /* 重开 */
+  .btn[data-action="reset"] {
     right: -8px;
-    bottom: 130px;
+    bottom: 150px;
     width: 40px;
     height: 40px;
     font-size: 10px;
-    opacity: 0.6;
-}
-
-.btn:active,
-.btn.active {
-    transform: scale(0.88);
-    background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0.4));
-}
-
-/* 技能环形布局 */
-.btn {
-    position: absolute;
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    border: none;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
-    color: #5f4361;
-    font-size: 14px;
-    font-weight: bold;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-}
-
-/* 排列成王者那种布局 */
-
-.btn[data-action="jump"] {
-    right: 120px;
-    bottom: 130px;
-    width: 64px;
-    height: 64px;
-    font-size: 12px;
-}
-
-.btn[data-action="reset"] {
-    right: -10px;
-    bottom: 140px;
-    width: 50px;
-    height: 50px;
-    font-size: 10px;
-    opacity: 0.7;
-}
-
-.btn:active,
-.btn.active {
-    transform: scale(0.9);
-    background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0.4));
-}
-
-.btn {
-  position: absolute;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.35);
-  background: rgba(255,255,255,0.18);
-  color: #5f4361;
-  font-size: 13px;
-  font-weight: 700;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
-  touch-action: none;
-  transition: transform 0.08s ease, background 0.2s ease;
-}
-
-/* 主攻击键 */
-.btn[data-action="light"] {
-  width: 78px;
-  height: 78px;
-  right: 0;
-  bottom: 60px;
-}
-
-/* 扇形布局（核心优化） */
-.btn[data-action="heavy"] {
-  right: 70px;
-  bottom: 20px;
-}
-
-.btn[data-action="skill"] {
-  right: 120px;
-  bottom: 70px;
-}
-
-.btn[data-action="dash"] {
-  right: 80px;
-  bottom: 130px;
-}
-
-/* 跳跃 */
-.btn[data-action="jump"] {
-  right: 150px;
-  bottom: 120px;
-  width: 58px;
-  height: 58px;
-}
-
-/* 重开 */
-.btn[data-action="reset"] {
-  right: -8px;
-  bottom: 150px;
-  width: 40px;
-  height: 40px;
-  font-size: 10px;
-  opacity: 0.5;
-}
-
-.btn:active,
-.btn.active {
-  transform: scale(0.88);
-  background: rgba(255,255,255,0.35);
-}
+    opacity: 0.5;
+  }
 
   .btn:active,
   .btn.active {
-    background: rgba(255,255,255,0.48);
-    transform: scale(0.97);
-  }
-
-  .btn.big {
-    width: 84px;
-    height: 84px;
-    font-size: 16px;
+    transform: scale(0.88);
+    background: rgba(255,255,255,0.35);
   }
 </style>
 </head>
@@ -407,29 +225,36 @@ canvas {
 (() => {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('wrap'); // 获取父容器
   
-let W = window.innerWidth;
-let H = window.innerHeight;
+  // 修改2: 将常量改为变量
+  let W = wrap.clientWidth;  // 使用父容器宽度
+  let H = wrap.clientHeight;  // 使用父容器高度
+  let GROUND_Y = H - 90;  // 从常量改为变量，初始值基于当前高度
 
-    // ✅ ⭐这里插入 resizeCanvas（关键位置）
-function resizeCanvas() {
-  const dpr = window.devicePixelRatio || 1;
+  // ✅ 修改3: resizeCanvas 函数
+  function resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    
+    // 使用wrap容器的客户区尺寸，而不是window
+    W = wrap.clientWidth;
+    H = wrap.clientHeight;
+    
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    
+    // 修改4: 动态更新地面位置
+    GROUND_Y = H - 90;
+  }
 
-  W = window.innerWidth;
-  H = window.innerHeight;
-
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
-
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
-
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-
-window.addEventListener('resize', resizeCanvas);
-window.visualViewport?.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  window.visualViewport?.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
   const touchUI = document.getElementById('touch-ui');
   const rotateTip = document.getElementById('rotate-tip');
@@ -437,7 +262,6 @@ resizeCanvas();
   const stick = document.getElementById('stick');
   const actionButtons = Array.from(document.querySelectorAll('[data-action]'));
 
-  const GROUND_Y = 450;
   const GRAVITY = 0.7;
   const FRICTION = 0.82;
   const MAX_MANA = 100;
@@ -645,7 +469,7 @@ resizeCanvas();
     constructor(name, x, palette, controls, ai = false) {
       this.name = name;
       this.x = x;
-      this.y = GROUND_Y - 96;
+      this.y = GROUND_Y - 96;  // 使用变量
       this.w = 46;
       this.h = 96;
       this.vx = 0;
@@ -1173,6 +997,1269 @@ resizeCanvas();
     left: 'arrowleft', right: 'arrowright', jump: 'arrowup', light: 'n', heavy: 'm', skill: 'b', dash: 'v', mobileAxis: null
   }, true);
 
+  // 修改5: resetGame中使用动态GROUND_Y
+  function resetGame() {
+    player.x = 180; player.y = GROUND_Y - player.h; player.vx = player.vy = 0; player.hp = MAX_HP; player.mana = 0;
+    player.state = 'idle'; player.hitstun = 0; player.invuln = 0; player.combo = 0; player.comboTimer = 0;
+    enemy.x = 740; enemy.y = GROUND_Y - enemy.h; enemy.vx = enemy.vy = 0; enemy.hp = MAX_HP; enemy.mana = 0;
+    enemy.state = 'idle'; enemy.hitstun = 0; enemy.invuln = 0; enemy.combo = 0; enemy.comboTimer = 0;
+    projectiles = [];
+    gameOver = false;
+    winner = '';
+    roundTime = 99.9;
+    resetStick();
+    actionButtons.forEach(b => b.classList.remove('active'));
+  }
+
+  function drawHeart(x, y, size) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.beginPath();
+    ctx.moveTo(0, size * 0.35);
+    ctx.bezierCurveTo(0, 0, -size, 0, -size, size * 0.55);
+    ctx.bezierCurveTo(-size, size * 1.1, 0, size * 1.3, 0, size * 1.7);
+    ctx.bezierCurveTo(0, size * 1.3, size, size * 1.1, size, size * 0.55);
+    ctx.bezierCurveTo(size, 0, 0, 0, 0, size * 0.35);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawStage() {
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#ffe1f1');
+    sky.addColorStop(0.42, '#ebddff');
+    sky.addColorStop(1, '#c6dbff');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < 8; i++) {
+      const x = (i * 150 + (performance.now() / 90)) % (W + 160) - 80;
+      const y = 70 + (i % 3) * 30;
+      ctx.beginPath();
+      ctx.arc(x, y, 20, 0, Math.PI * 2);
+      ctx.arc(x + 22, y + 4, 16, 0, Math.PI * 2);
+      ctx.arc(x - 18, y + 6, 15, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = 0.15;
+    ctx.fillStyle = '#ff7fbe';
+    for (let i = 0; i < 6; i++) {
+      const x = (i * 180 + (performance.now() / 110)) % (W + 100) - 50;
+      const y = 110 + (i % 2) * 42;
+      drawHeart(x, y, 10 + (i % 3) * 3);
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = 0.32;
+    ctx.fillStyle = '#f2c9e7';
+    ctx.beginPath();
+    ctx.roundRect(40, 240, 150, 120, 18);
+    ctx.roundRect(220, 210, 120, 150, 18);
+    ctx.roundRect(395, 225, 180, 135, 18);
+    ctx.roundRect(610, 200, 130, 160, 18);
+    ctx.roundRect(770, 235, 120, 125, 18);
+    ctx.fill();
+    ctx.restore();
+
+    const floor = ctx.createLinearGradient(0, GROUND_Y, 0, H);
+    floor.addColorStop(0, '#f5d8ea');
+    floor.addColorStop(1, '#d7c7ff');
+    ctx.fillStyle = floor;
+    ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.42)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, GROUND_Y + 1);
+    ctx.lineTo(W, GROUND_Y + 1);
+    ctx.stroke();
+
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.strokeStyle = '#ffffff';
+    for (let x = 0; x <= W; x += 48) {
+      ctx.beginPath();
+      ctx.moveTo(x, GROUND_Y);
+      ctx.lineTo(x + 20, H);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.save();
+    const glow = ctx.createRadialGradient(W / 2, GROUND_Y + 20, 20, W / 2, GROUND_Y + 40, 260);
+    glow.addColorStop(0, 'rgba(255,255,255,0.18)');
+    glow.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+    ctx.restore();
+  }
+
+  function drawHUD() {
+    function bar(x, y, w, h, p, fillStyle, label) {
+      ctx.fillStyle = 'rgba(255,255,255,0.24)';
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 12);
+      ctx.fill();
+      ctx.fillStyle = fillStyle;
+      ctx.beginPath();
+      ctx.roundRect(x + 2, y + 2, (w - 4) * clamp(p, 0, 1), h - 4, 10);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 12);
+      ctx.stroke();
+      ctx.fillStyle = '#563d58';
+      ctx.font = '14px Arial';
+      ctx.fillText(label, x + 10, y + h - 8);
+    }
+
+    bar(24, 18, 300, 26, player.hp / MAX_HP, 'linear-gradient(#ffcaeb,#ff8bcf)', `你 HP ${player.hp}`);
+    bar(W - 324, 18, 300, 26, enemy.hp / MAX_HP, 'linear-gradient(#d7d0ff,#8d97ff)', `敌人 HP ${enemy.hp}`);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.26)';
+    ctx.beginPath();
+    ctx.roundRect(24, 54, 220, 14, 8);
+    ctx.roundRect(W - 244, 54, 220, 14, 8);
+    ctx.fill();
+    ctx.fillStyle = '#ff79c6';
+    ctx.beginPath();
+    ctx.roundRect(26, 56, 216 * (player.mana / MAX_MANA), 10, 6);
+    ctx.fill();
+    ctx.fillStyle = '#8da8ff';
+    ctx.beginPath();
+    ctx.roundRect(W - 242, 56, 216 * (enemy.mana / MAX_MANA), 10, 6);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.beginPath();
+    ctx.roundRect(24, 54, 220, 14, 8);
+    ctx.roundRect(W - 244, 54, 220, 14, 8);
+    ctx.stroke();
+
+    ctx.fillStyle = '#7a5a79';
+    ctx.font = '16px Arial';
+    ctx.fillText(`连击 ${player.combo}`, 24, 90);
+    ctx.fillText(`连击 ${enemy.combo}`, W - 120, 90);
+
+    ctx.fillStyle = '#6f5d7c';
+    ctx.font = '15px Arial';
+    ctx.fillText('A/D 或摇杆移动   W/跳跃键 跳   J/轻击   K/重击   U/技能   I/冲刺', 24, H - 20);
+  }
+
+  function drawTimer() {
+    ctx.save();
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#ffffff';
+    ctx.fillStyle = '#fff7ff';
+    ctx.font = 'bold 30px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(Math.max(0, Math.ceil(roundTime)).toString().padStart(2, '0'), W / 2, 48);
+    ctx.textAlign = 'left';
+    ctx.restore();
+  }
+
+  function drawGameOver() {
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,240,250,0.48)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#7b4b73';
+    ctx.font = 'bold 54px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(winner, W / 2, H / 2 - 8);
+    ctx.font = '22px Arial';
+    ctx.fillText('按 R 重新开始', W / 2, H / 2 + 34);
+    ctx.textAlign = 'left';
+    ctx.restore();
+  }
+
+  function updateProjectiles() {
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+      const p = projectiles[i];
+      p.update();
+      if (p.life <= 0 || p.x < -50 || p.x > W + 50) {
+        projectiles.splice(i, 1);
+        continue;
+      }
+      const target = p.owner === player ? enemy : player;
+      if (rectsOverlap(p.hitbox, target.hurtbox) && target.invuln <= 0 && target.hp > 0) {
+        target.takeHit(p.owner, p.damage, 7.4, -4.4, p.x);
+        p.life = 0;
+        projectiles.splice(i, 1);
+      }
+    }
+  }
+
+  function resolveFacing() {
+    if (player.x < enemy.x) {
+      player.facing = 1;
+      enemy.facing = -1;
+    } else {
+      player.facing = -1;
+      enemy.facing = 1;
+    }
+  }
+
+  function checkKO() {
+    if (player.hp <= 0) {
+      winner = '你输了';
+      gameOver = true;
+    } else if (enemy.hp <= 0) {
+      winner = '你赢了';
+      gameOver = true;
+    } else if (roundTime <= 0) {
+      if (player.hp > enemy.hp) winner = '你赢了';
+      else if (player.hp < enemy.hp) winner = '你输了';
+      else winner = '平局';
+      gameOver = true;
+    }
+  }
+
+  function update() {
+    if (consumePressed('r')) resetGame();
+    if (gameOver) return;
+    if (gamePausedByPortrait()) return;
+
+    roundTime -= 1 / 60;
+    resolveFacing();
+
+    player.update(projectiles, enemy);
+    enemy.update(projectiles, player);
+    updateProjectiles();
+    checkKO();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    drawStage();
+
+    for (const p of projectiles) p.draw();
+    player.draw();
+    enemy.draw();
+
+    drawHUD();
+    drawTimer();
+
+    if (gameOver) drawGameOver();
+  }
+
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  resetGame();
+  loop();
+})();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>曼子系原创横版格斗</title>
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(circle at top, #ffdff2 0%, #f8dff9 28%, #dbe8ff 58%, #b9d4ff 100%);
+    font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #wrap {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    /* ⭐iPhone 刘海 + 底部白条安全区 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* 修改1: canvas 改为百分比，基于父容器内容区域 */
+  canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%; /* 从 100vw 改为 100% */
+    height: 100%; /* 从 100vh 改为 100% */
+  }
+
+  #touch-ui {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: none;
+    
+    /* ⭐关键 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  #rotate-tip {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(20, 12, 24, 0.82);
+    color: #fff;
+    z-index: 30;
+    text-align: center;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+
+  #rotate-tip .big {
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  #rotate-tip .small {
+    font-size: 15px;
+    opacity: 0.85;
+    line-height: 1.6;
+    max-width: 28em;
+  }
+
+  .hint {
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+    color: rgba(95,67,97,0.72);
+    font-size: 13px;
+    background: rgba(255,255,255,0.26);
+    padding: 6px 12px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.35);
+    pointer-events: none;
+  }
+
+  #joystick {
+    position: absolute;
+    left: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow: inset 0 0 20px rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.12);
+    pointer-events: auto;
+    touch-action: none;
+  }
+
+  #stick {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    left: 43px;
+    top: 43px;
+    background: rgba(255,255,255,0.42);
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    pointer-events: none;
+  }
+
+  #buttons {
+    position: absolute;
+    right: calc(28px + env(safe-area-inset-right));
+    bottom: calc(28px + env(safe-area-inset-bottom));
+    width: 200px;
+    height: 200px;
+    pointer-events: auto;
+  }
+
+  .btn {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.18);
+    color: #5f4361;
+    font-size: 13px;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    touch-action: none;
+    transition: transform 0.08s ease, background 0.2s ease;
+  }
+
+  /* 主攻击键 */
+  .btn[data-action="light"] {
+    width: 78px;
+    height: 78px;
+    right: 0;
+    bottom: 60px;
+  }
+
+  /* 扇形布局 */
+  .btn[data-action="heavy"] {
+    right: 70px;
+    bottom: 20px;
+  }
+
+  .btn[data-action="skill"] {
+    right: 120px;
+    bottom: 70px;
+  }
+
+  .btn[data-action="dash"] {
+    right: 80px;
+    bottom: 130px;
+  }
+
+  /* 跳跃 */
+  .btn[data-action="jump"] {
+    right: 150px;
+    bottom: 120px;
+    width: 58px;
+    height: 58px;
+  }
+
+  /* 重开 */
+  .btn[data-action="reset"] {
+    right: -8px;
+    bottom: 150px;
+    width: 40px;
+    height: 40px;
+    font-size: 10px;
+    opacity: 0.5;
+  }
+
+  .btn:active,
+  .btn.active {
+    transform: scale(0.88);
+    background: rgba(255,255,255,0.35);
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game" width="960" height="540"></canvas>
+
+  <div id="rotate-tip" aria-hidden="true">
+    <div class="big">请横屏体验</div>
+    <div class="small">这是横版曼子格斗游戏，横屏会有更大的战斗视野，摇杆和按钮也会更顺手。</div>
+  </div>
+
+  <div id="touch-ui" aria-hidden="true">
+    <div class="hint">手机触控：左侧摇杆移动 / 右侧按键出招</div>
+    <div id="joystick">
+      <div id="stick"></div>
+    </div>
+    <div id="buttons">
+      <button class="btn" data-action="light">轻击</button>
+      <button class="btn" data-action="jump">跳跃</button>
+      <button class="btn" data-action="heavy">重击</button>
+      <button class="btn" data-action="skill">技能</button>
+      <button class="btn" data-action="dash">冲刺</button>
+      <button class="btn" data-action="reset">重开</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('wrap'); // 获取父容器
+  
+  // 修改2: 将常量改为变量
+  let W = wrap.clientWidth;  // 使用父容器宽度
+  let H = wrap.clientHeight;  // 使用父容器高度
+  let GROUND_Y = H - 90;  // 从常量改为变量，初始值基于当前高度
+
+  // ✅ 修改3: resizeCanvas 函数
+  function resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    
+    // 使用wrap容器的客户区尺寸，而不是window
+    W = wrap.clientWidth;
+    H = wrap.clientHeight;
+    
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    
+    // 修改4: 动态更新地面位置
+    GROUND_Y = H - 90;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  window.visualViewport?.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  const touchUI = document.getElementById('touch-ui');
+  const rotateTip = document.getElementById('rotate-tip');
+  const joystick = document.getElementById('joystick');
+  const stick = document.getElementById('stick');
+  const actionButtons = Array.from(document.querySelectorAll('[data-action]'));
+
+  const GRAVITY = 0.7;
+  const FRICTION = 0.82;
+  const MAX_MANA = 100;
+  const MAX_HP = 100;
+
+  const keys = Object.create(null);
+  const pressed = Object.create(null);
+  const touchInput = { x: 0, y: 0 };
+
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function rectsOverlap(a, b) {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  }
+
+  function shade(hex, amount) {
+    const c = hex.replace('#','');
+    const num = parseInt(c, 16);
+    let r = (num >> 16) + amount;
+    let g = ((num >> 8) & 0xff) + amount;
+    let b = (num & 0xff) + amount;
+    r = clamp(r, 0, 255);
+    g = clamp(g, 0, 255);
+    b = clamp(b, 0, 255);
+    return `rgb(${r|0},${g|0},${b|0})`;
+  }
+
+  function setKey(key, down) {
+    const k = key.toLowerCase();
+    if (down) {
+      if (!keys[k]) pressed[k] = true;
+      keys[k] = true;
+    } else {
+      keys[k] = false;
+    }
+  }
+
+  function consumePressed(k) {
+    if (pressed[k]) {
+      pressed[k] = false;
+      return true;
+    }
+    return false;
+  }
+
+  function shouldShowTouchUI() {
+    return navigator.maxTouchPoints > 0 && window.matchMedia('(pointer: coarse)').matches && window.matchMedia('(hover: none)').matches;
+  }
+
+  function updateTouchUIVisibility() {
+    touchUI.style.display = shouldShowTouchUI() ? 'block' : 'none';
+  }
+
+  function updateRotateTipVisibility() {
+    rotateTip.style.display = window.matchMedia('(orientation: portrait)').matches ? 'flex' : 'none';
+  }
+
+  function gamePausedByPortrait() {
+    return window.matchMedia('(orientation: portrait)').matches;
+  }
+
+  updateTouchUIVisibility();
+  updateRotateTipVisibility();
+  window.addEventListener('resize', () => {
+    updateTouchUIVisibility();
+    updateRotateTipVisibility();
+  });
+  window.addEventListener('orientationchange', () => {
+    updateTouchUIVisibility();
+    updateRotateTipVisibility();
+  });
+
+  window.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    if (!keys[k]) pressed[k] = true;
+    keys[k] = true;
+    if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
+  });
+
+  window.addEventListener('keyup', e => {
+    keys[e.key.toLowerCase()] = false;
+  });
+
+  // 虚拟摇杆
+  let dragging = false;
+  const JOY_R = 50;
+  const STICK_R = 32;
+
+  function resetStick() {
+    stick.style.left = '43px';
+    stick.style.top = '43px';
+    touchInput.x = 0;
+    touchInput.y = 0;
+  }
+
+  joystick.addEventListener('pointerdown', e => {
+    dragging = true;
+    joystick.setPointerCapture(e.pointerId);
+    moveStick(e);
+  });
+  window.addEventListener('pointerup', () => {
+    dragging = false;
+    resetStick();
+  });
+  window.addEventListener('pointercancel', () => {
+    dragging = false;
+    resetStick();
+  });
+  window.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    moveStick(e);
+  });
+
+  function moveStick(e) {
+    const rect = joystick.getBoundingClientRect();
+    let x = e.clientX - rect.left - rect.width / 2;
+    let y = e.clientY - rect.top - rect.height / 2;
+    const dist = Math.hypot(x, y);
+    if (dist > JOY_R) {
+      x = x * JOY_R / dist;
+      y = y * JOY_R / dist;
+    }
+    stick.style.left = `${rect.width / 2 + x - STICK_R}px`;
+    stick.style.top = `${rect.height / 2 + y - STICK_R}px`;
+    touchInput.x = x / JOY_R;
+    touchInput.y = y / JOY_R;
+  }
+
+  // 按钮输入
+  actionButtons.forEach(btn => {
+    const action = btn.dataset.action;
+    const down = e => {
+      e.preventDefault();
+      btn.classList.add('active');
+      if (action === 'reset') {
+        resetGame();
+        return;
+      }
+      setKey(actionKeyMap[action], true);
+    };
+    const up = e => {
+      e.preventDefault();
+      btn.classList.remove('active');
+      if (action === 'reset') return;
+      setKey(actionKeyMap[action], false);
+    };
+    btn.addEventListener('pointerdown', down);
+    btn.addEventListener('pointerup', up);
+    btn.addEventListener('pointerleave', up);
+    btn.addEventListener('pointercancel', up);
+  });
+
+  const actionKeyMap = {
+    light: 'j',
+    heavy: 'k',
+    skill: 'u',
+    dash: 'i',
+    jump: 'w',
+    reset: 'r'
+  };
+
+  class Projectile {
+    constructor(owner, x, y, dir) {
+      this.owner = owner;
+      this.x = x;
+      this.y = y;
+      this.w = 18;
+      this.h = 10;
+      this.vx = dir * 8.2;
+      this.vy = -0.2;
+      this.life = 180;
+      this.damage = 12;
+    }
+
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.life--;
+    }
+
+    draw() {
+      ctx.save();
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = this.owner.projectileColor;
+      ctx.fillStyle = this.owner.projectileColor;
+      ctx.beginPath();
+      ctx.roundRect(this.x, this.y, this.w, this.h, 6);
+      ctx.fill();
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(this.x - 8, this.y + 1, this.w + 16, this.h - 2, 8);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    get hitbox() {
+      return { x: this.x, y: this.y, w: this.w, h: this.h };
+    }
+  }
+
+  class Fighter {
+    constructor(name, x, palette, controls, ai = false) {
+      this.name = name;
+      this.x = x;
+      this.y = GROUND_Y - 96;  // 使用变量
+      this.w = 46;
+      this.h = 96;
+      this.vx = 0;
+      this.vy = 0;
+      this.speed = 3.15;
+      this.jumpPower = 13.2;
+      this.facing = 1;
+      this.palette = palette;
+      this.controls = controls;
+      this.ai = ai;
+      if (ai) {
+        this.speed = 3.55;
+        this.jumpPower = 13.6;
+      }
+      this.hp = MAX_HP;
+      this.mana = 0;
+      this.onGround = false;
+      this.state = 'idle';
+      this.stateTime = 0;
+      this.attackCooldown = 0;
+      this.hitstun = 0;
+      this.invuln = 0;
+      this.combo = 0;
+      this.comboTimer = 0;
+      this.attackType = null;
+      this.attackFrame = 0;
+      this.attackStarted = false;
+      this.dashCooldown = 0;
+      this.projectileColor = palette.magic;
+      this.aiThink = 0;
+      this.aiTarget = null;
+    }
+
+    get hurtbox() {
+      return { x: this.x + 3, y: this.y + 4, w: this.w - 6, h: this.h - 6 };
+    }
+
+    get attackBox() {
+      if (this.state !== 'attack') return null;
+      const boxW = this.attackType === 'heavy' ? 58 : 46;
+      const boxH = this.attackType === 'heavy' ? 42 : 34;
+      const x = this.facing === 1 ? this.x + this.w - 2 : this.x - boxW + 2;
+      const y = this.y + 26;
+      return {
+        x,
+        y,
+        w: boxW,
+        h: boxH,
+        damage: this.attackType === 'heavy' ? 18 : 10,
+        knockX: this.attackType === 'heavy' ? 7.8 : 4.7,
+        knockY: this.attackType === 'heavy' ? -8.8 : -5.0
+      };
+    }
+
+    move(dir) {
+      if (this.hitstun > 0 || this.state === 'attack') return;
+      this.vx += dir * this.speed;
+      if (dir !== 0) this.facing = dir;
+      if (this.onGround) this.state = 'run';
+    }
+
+    jump() {
+      if (this.onGround && this.hitstun <= 0 && this.state !== 'attack') {
+        this.vy = -this.jumpPower;
+        this.onGround = false;
+        this.state = 'jump';
+      }
+    }
+
+    startAttack(type = 'light') {
+      if (this.hitstun > 0 || this.attackCooldown > 0 || this.state === 'attack') return false;
+      this.state = 'attack';
+      this.stateTime = 0;
+      this.attackFrame = 0;
+      this.attackStarted = false;
+      this.attackType = type;
+      this.attackCooldown = type === 'heavy' ? 34 : 20;
+      return true;
+    }
+
+    startDash() {
+      if (this.hitstun > 0 || this.dashCooldown > 0 || this.state === 'attack') return false;
+      this.vx += this.facing * 9.5;
+      this.dashCooldown = 48;
+      this.invuln = 8;
+      this.state = 'dash';
+      this.stateTime = 0;
+      return true;
+    }
+
+    castProjectile(list) {
+      if (this.hitstun > 0 || this.state === 'attack' || this.mana < 35) return false;
+      this.mana -= 35;
+      list.push(new Projectile(this, this.facing === 1 ? this.x + this.w + 4 : this.x - 22, this.y + 39, this.facing));
+      this.state = 'cast';
+      this.stateTime = 0;
+      this.attackCooldown = 12;
+      return true;
+    }
+
+    takeHit(source, damage, knockX, knockY, fromX) {
+      if (this.invuln > 0) return false;
+      this.hp = Math.max(0, this.hp - damage);
+      this.hitstun = damage >= 16 ? 26 : 18;
+      this.invuln = 8;
+      this.state = 'hit';
+      this.stateTime = 0;
+      this.vx = fromX < this.x ? knockX : -knockX;
+      this.vy = knockY;
+      this.comboTimer = 45;
+      source.combo = (source.combo || 0) + 1;
+      source.comboTimer = 45;
+      return true;
+    }
+
+    update(projectiles, opponent) {
+      if (this.hp <= 0) return;
+
+      this.aiTarget = opponent;
+
+      if (this.attackCooldown > 0) this.attackCooldown--;
+      if (this.hitstun > 0) this.hitstun--;
+      if (this.invuln > 0) this.invuln--;
+      if (this.dashCooldown > 0) this.dashCooldown--;
+      if (this.comboTimer > 0) this.comboTimer--; else this.combo = 0;
+
+      this.mana = clamp(this.mana + 0.22, 0, MAX_MANA);
+
+      if (this.ai) this.think(projectiles);
+      else this.handleInput(projectiles);
+
+      this.vy += GRAVITY;
+      this.x += this.vx;
+      this.y += this.vy;
+
+      this.vx *= FRICTION;
+
+      if (this.y >= GROUND_Y - this.h) {
+        this.y = GROUND_Y - this.h;
+        this.vy = 0;
+        this.onGround = true;
+        if (this.state === 'jump' || this.state === 'fall') this.state = Math.abs(this.vx) > 0.6 ? 'run' : 'idle';
+      } else {
+        this.onGround = false;
+        if (this.vy > 0 && this.state !== 'attack') this.state = 'fall';
+      }
+
+      this.x = clamp(this.x, 24, W - this.w - 24);
+
+      if (this.state === 'attack') {
+        this.stateTime++;
+        this.attackFrame++;
+        if (!this.attackStarted && this.attackFrame >= 7 && this.attackFrame <= 11) {
+          this.attackStarted = true;
+        }
+        if (this.attackStarted && this.attackFrame >= 7 && this.attackFrame <= 12) {
+          const box = this.attackBox;
+          if (box && rectsOverlap(box, opponent.hurtbox) && opponent.invuln <= 0) {
+            opponent.takeHit(this, box.damage, box.knockX, box.knockY, this.x);
+            this.mana = clamp(this.mana + (this.attackType === 'heavy' ? 14 : 8), 0, MAX_MANA);
+          }
+        }
+        if (this.attackFrame > (this.attackType === 'heavy' ? 22 : 14)) {
+          this.state = this.onGround ? (Math.abs(this.vx) > 0.6 ? 'run' : 'idle') : 'fall';
+          this.attackType = null;
+          this.attackStarted = false;
+        }
+      }
+
+      if (this.state === 'hit') {
+        if (this.hitstun <= 0) this.state = this.onGround ? 'idle' : 'fall';
+      }
+
+      if (this.state === 'dash') {
+        this.stateTime++;
+        if (this.stateTime > 10) this.state = this.onGround ? 'idle' : 'fall';
+      }
+
+      if (this.state === 'cast') {
+        this.stateTime++;
+        if (this.stateTime > 12) this.state = this.onGround ? 'idle' : 'fall';
+      }
+    }
+
+    handleInput(projectiles) {
+      const c = this.controls;
+      let dir = 0;
+
+      if (c.left && keys[c.left]) dir -= 1;
+      if (c.right && keys[c.right]) dir += 1;
+      if (c.mobileAxis) dir += c.mobileAxis();
+
+      if (dir !== 0 && this.state !== 'attack' && this.hitstun <= 0) this.move(clamp(dir, -1, 1));
+      else if (this.state !== 'attack' && this.onGround && this.hitstun <= 0) this.state = Math.abs(this.vx) > 0.6 ? 'run' : 'idle';
+
+      if (consumePressed(c.jump)) this.jump();
+      if (consumePressed(c.light)) this.startAttack('light');
+      if (consumePressed(c.heavy)) this.startAttack('heavy');
+      if (consumePressed(c.skill)) this.castProjectile(projectiles);
+      if (consumePressed(c.dash)) this.startDash();
+    }
+
+    think(projectiles) {
+      const p = this.aiTarget;
+      if (!p || p.hp <= 0) return;
+
+      const dx = p.x - this.x;
+      const adx = Math.abs(dx);
+      const playerAir = !p.onGround;
+      const playerClose = adx < 56;
+      const playerMid = adx >= 56 && adx < 150;
+      const playerFar = adx >= 150;
+      const playerRecovering = p.hitstun > 0 || p.state === 'attack' || p.state === 'cast' || p.state === 'dash';
+
+      this.facing = dx >= 0 ? 1 : -1;
+      this.aiThink--;
+      if (this.aiThink > 0) return;
+      this.aiThink = 2 + Math.floor(Math.random() * 4);
+
+      if (this.hitstun > 0) return;
+
+      const lowHp = this.hp < 32;
+
+      if (playerClose) {
+        if (playerRecovering || Math.random() < 0.55) {
+          const useHeavy = Math.random() < (lowHp ? 0.35 : 0.5);
+          this.startAttack(useHeavy ? 'heavy' : 'light');
+          if (Math.random() < 0.22 && this.dashCooldown <= 0) this.startDash();
+          return;
+        }
+
+        const micro = Math.random() < 0.5 ? 1 : -1;
+        if (Math.abs(dx) > 28) {
+          this.vx += (dx > 0 ? 1 : -1) * this.speed * 0.95;
+        } else {
+          this.vx += micro * this.speed * 0.22;
+        }
+
+        if (this.onGround && Math.random() < 0.14) {
+          this.jump();
+          if (Math.random() < 0.7) this.startAttack('light');
+          return;
+        }
+
+        if (Math.random() < (lowHp ? 0.35 : 0.6)) {
+          this.startAttack(Math.random() < 0.72 ? 'light' : 'heavy');
+          return;
+        }
+
+        if (this.dashCooldown <= 0 && Math.random() < 0.18) {
+          this.startDash();
+          return;
+        }
+      }
+
+      if (playerMid) {
+        this.vx += (dx > 0 ? 1 : -1) * this.speed * 1.05;
+
+        if (playerAir && this.onGround && Math.random() < 0.42) {
+          this.jump();
+          if (Math.random() < 0.8) this.startAttack('light');
+          return;
+        }
+
+        if (this.mana >= 35 && Math.random() < 0.32) {
+          this.castProjectile(projectiles);
+          return;
+        }
+
+        if (adx < 110 && Math.random() < 0.72) {
+          this.startAttack(Math.random() < 0.6 ? 'light' : 'heavy');
+          return;
+        }
+
+        if (this.dashCooldown <= 0 && Math.random() < 0.28) {
+          this.startDash();
+          return;
+        }
+      }
+
+      if (playerFar) {
+        this.vx += (dx > 0 ? 1 : -1) * this.speed * 1.15;
+
+        if (this.dashCooldown <= 0 && Math.random() < (lowHp ? 0.18 : 0.36)) {
+          this.startDash();
+          return;
+        }
+
+        if (this.mana >= 35 && Math.random() < 0.58) {
+          this.castProjectile(projectiles);
+          return;
+        }
+
+        if (this.onGround && Math.random() < 0.16) {
+          this.jump();
+        }
+      }
+
+      if (playerRecovering && adx < 120) {
+        if (Math.random() < 0.7) {
+          this.startAttack(adx < 70 ? 'heavy' : 'light');
+          return;
+        }
+        if (this.dashCooldown <= 0 && Math.random() < 0.4) {
+          this.startDash();
+          return;
+        }
+      }
+
+      if (Math.abs(this.vx) < 0.2) {
+        this.vx += (dx > 0 ? 1 : -1) * this.speed * 0.45;
+      }
+    }
+
+    draw() {
+      const pulse = this.invuln > 0 ? (Math.floor(performance.now() / 60) % 2 === 0) : true;
+      if (!pulse) return;
+
+      const flip = this.facing === -1;
+
+      ctx.save();
+      ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
+      ctx.scale(flip ? -1 : 1, 1);
+      ctx.translate(-this.w / 2, -this.h / 2);
+
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = '#694d7d';
+      ctx.beginPath();
+      ctx.ellipse(this.w / 2, this.h + 12, 25, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      if (this.mana >= 80) {
+        ctx.save();
+        ctx.globalAlpha = 0.16;
+        ctx.fillStyle = this.palette.magic;
+        ctx.beginPath();
+        ctx.ellipse(this.w / 2, this.h / 2 + 4, 34, 56, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      const runStep = this.state === 'run' ? Math.sin(performance.now() / 70) * 3.2 : 0;
+      const sway = this.state === 'jump' ? -4 : this.state === 'fall' ? 4 : 0;
+
+      ctx.fillStyle = this.palette.hair;
+      ctx.beginPath();
+      ctx.roundRect(5, 6, 36, 46, 16);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(23, 28, 19, 24, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.fillStyle = shade(this.palette.hair, 10);
+      ctx.beginPath();
+      ctx.moveTo(8, 30);
+      ctx.quadraticCurveTo(0, 58, 7, 86);
+      ctx.quadraticCurveTo(13, 76, 13, 60);
+      ctx.quadraticCurveTo(13, 44, 8, 30);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(38, 30);
+      ctx.quadraticCurveTo(48, 58, 40, 86);
+      ctx.quadraticCurveTo(34, 76, 34, 60);
+      ctx.quadraticCurveTo(34, 44, 38, 30);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle = this.palette.hair;
+      ctx.beginPath();
+      ctx.moveTo(8, 18);
+      ctx.quadraticCurveTo(23, 0, 38, 18);
+      ctx.quadraticCurveTo(32, 22, 28, 20);
+      ctx.quadraticCurveTo(23, 26, 18, 20);
+      ctx.quadraticCurveTo(13, 22, 8, 18);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffd8c5';
+      ctx.beginPath();
+      ctx.ellipse(23, 23, 13, 15, sway * 0.02, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#333';
+      ctx.beginPath();
+      ctx.ellipse(18, 22, 2.7, 3.7, 0, 0, Math.PI * 2);
+      ctx.ellipse(28, 22, 2.7, 3.7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(17.2, 20.9, 0.9, 0, Math.PI * 2);
+      ctx.arc(27.2, 20.9, 0.9, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(255,145,182,0.45)';
+      ctx.beginPath();
+      ctx.ellipse(13.5, 28, 3.8, 2.3, 0, 0, Math.PI * 2);
+      ctx.ellipse(32.5, 28, 3.8, 2.3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#a45a6d';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(20.5, 31);
+      ctx.quadraticCurveTo(23, 33, 25.5, 31);
+      ctx.stroke();
+
+      ctx.fillStyle = this.palette.ribbon;
+      ctx.beginPath();
+      ctx.moveTo(21, 9);
+      ctx.lineTo(17, 4);
+      ctx.lineTo(14, 9);
+      ctx.lineTo(17.5, 11.5);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(25, 9);
+      ctx.lineTo(29, 4);
+      ctx.lineTo(32, 9);
+      ctx.lineTo(28.5, 11.5);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(23, 8.8, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      const atk = this.state === 'attack' ? this.attackFrame : 0;
+      const swing = this.attackType === 'heavy' ? Math.min(1, Math.max(0, (atk - 5) / 8)) : Math.min(1, Math.max(0, (atk - 4) / 6));
+      const armY = 34 + (this.state === 'hit' ? 5 : 0);
+
+      ctx.fillStyle = this.palette.skin;
+      ctx.save();
+      ctx.translate(32, armY);
+      ctx.rotate(-0.35 + swing * 1.0);
+      ctx.beginPath();
+      ctx.roundRect(-3, 0, 8, 25, 4);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(8, armY);
+      ctx.rotate(0.26 - swing * 0.36);
+      ctx.beginPath();
+      ctx.roundRect(-3, 0, 8, 23, 4);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle = this.palette.dress;
+      ctx.beginPath();
+      ctx.roundRect(8, 34, 30, 36, 12);
+      ctx.fill();
+      ctx.fillStyle = shade(this.palette.dress, 16);
+      ctx.beginPath();
+      ctx.roundRect(13, 38, 20, 14, 7);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.26)';
+      ctx.beginPath();
+      ctx.roundRect(11, 37, 6, 34, 3);
+      ctx.fill();
+
+      ctx.fillStyle = shade(this.palette.dress, -10);
+      ctx.beginPath();
+      ctx.moveTo(8, 66);
+      ctx.quadraticCurveTo(23, 86 + sway * 0.2, 38, 66);
+      ctx.lineTo(8, 66);
+      ctx.fill();
+
+      ctx.fillStyle = '#f7d5e7';
+      ctx.fillRect(13 + runStep, 66, 9, 20);
+      ctx.fillRect(24 - runStep, 66, 9, 20);
+      ctx.fillStyle = this.palette.stocking;
+      ctx.fillRect(13 + runStep, 72, 9, 12);
+      ctx.fillRect(24 - runStep, 72, 9, 12);
+
+      ctx.fillStyle = this.palette.shoe;
+      ctx.beginPath();
+      ctx.roundRect(10 + runStep, 84, 14, 7, 4);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(22 - runStep, 84, 14, 7, 4);
+      ctx.fill();
+
+      if (this.state === 'attack') {
+        ctx.save();
+        ctx.globalAlpha = 0.45;
+        ctx.fillStyle = this.attackType === 'heavy' ? this.palette.spark : '#ffffff';
+        const bx = this.facing === 1 ? 36 : -22;
+        ctx.beginPath();
+        ctx.roundRect(bx, 39, this.attackType === 'heavy' ? 40 : 28, this.attackType === 'heavy' ? 12 : 8, 6);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+  }
+
+  let projectiles = [];
+  let gameOver = false;
+  let winner = '';
+  let roundTime = 99.9;
+
+  const player = new Fighter('玩家', 180, {
+    hair: '#ff8fcf',
+    dress: '#ffb9e2',
+    skin: '#ffd8c5',
+    ribbon: '#fff4fb',
+    stocking: '#f3c8df',
+    shoe: '#ffffff',
+    magic: '#ff7ecb',
+    spark: '#ffd1ef'
+  }, {
+    left: 'a', right: 'd', jump: 'w', light: 'j', heavy: 'k', skill: 'u', dash: 'i', mobileAxis: () => touchInput.x
+  }, false);
+
+  const enemy = new Fighter('敌人', 740, {
+    hair: '#7a7cff',
+    dress: '#c5b9ff',
+    skin: '#ffd8c5',
+    ribbon: '#eef0ff',
+    stocking: '#d6d4ff',
+    shoe: '#ffffff',
+    magic: '#8aa7ff',
+    spark: '#dbe6ff'
+  }, {
+    left: 'arrowleft', right: 'arrowright', jump: 'arrowup', light: 'n', heavy: 'm', skill: 'b', dash: 'v', mobileAxis: null
+  }, true);
+
+  // 修改5: resetGame中使用动态GROUND_Y
   function resetGame() {
     player.x = 180; player.y = GROUND_Y - player.h; player.vx = player.vy = 0; player.hp = MAX_HP; player.mana = 0;
     player.state = 'idle'; player.hitstun = 0; player.invuln = 0; player.combo = 0; player.comboTimer = 0;
