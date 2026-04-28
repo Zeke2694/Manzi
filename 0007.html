@@ -24,17 +24,14 @@
     overflow: hidden;
   }
 
-  canvas {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: min(100vw, calc(100vh * 16 / 9));
-    height: auto;
-    max-height: 100vh;
-    background: transparent;
-    image-rendering: auto;
-  }
+canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
 
   #touch-ui {
     position: absolute;
@@ -397,14 +394,30 @@
 (() => {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+
+    // ✅ ⭐这里插入 resizeCanvas（关键位置）
+  function resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
   const touchUI = document.getElementById('touch-ui');
   const rotateTip = document.getElementById('rotate-tip');
   const joystick = document.getElementById('joystick');
   const stick = document.getElementById('stick');
   const actionButtons = Array.from(document.querySelectorAll('[data-action]'));
 
-  const W = canvas.width;
-  const H = canvas.height;
+let W = window.innerWidth;
+let H = window.innerHeight;
   const GROUND_Y = 450;
   const GRAVITY = 0.7;
   const FRICTION = 0.82;
