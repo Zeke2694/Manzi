@@ -2,32 +2,145 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>少女系原创横版格斗</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>少女系原创横版格斗（手机版）</title>
   <style>
     html, body {
       margin: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background:
-        radial-gradient(circle at top, #ffdff2 0%, #f8dff9 28%, #dbe8ff 58%, #b9d4ff 100%);
+      background: radial-gradient(circle at top, #ffdff2 0%, #f8dff9 28%, #dbe8ff 58%, #b9d4ff 100%);
       font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    #wrap {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
     }
     canvas {
-      display: block;
-      margin: 0 auto;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(100vw, calc(100vh * 16 / 9));
+      height: auto;
+      max-height: 100vh;
       background: transparent;
       image-rendering: auto;
+    }
+    #touch-ui {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: none;
+    }
+    .pad, .skillpad {
+      position: absolute;
+      pointer-events: auto;
+      display: grid;
+      gap: 10px;
+    }
+    .pad {
+      left: 16px;
+      bottom: 16px;
+      grid-template-columns: 72px 72px;
+      grid-template-rows: 72px 72px;
+    }
+    .skillpad {
+      right: 16px;
+      bottom: 18px;
+      grid-template-columns: 88px 88px;
+      grid-template-rows: 72px 72px;
+    }
+    .btn {
+      width: 72px;
+      height: 72px;
+      border: none;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.28);
+      color: #5f4361;
+      font-size: 18px;
+      font-weight: 700;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 18px rgba(118, 90, 130, 0.18);
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    .btn:active, .btn.active {
+      background: rgba(255,255,255,0.48);
+      transform: scale(0.97);
+    }
+    .btn.big {
+      width: 88px;
+      height: 72px;
+      font-size: 16px;
+    }
+    .hint {
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%);
+      color: rgba(95,67,97,0.72);
+      font-size: 13px;
+      background: rgba(255,255,255,0.26);
+      padding: 6px 12px;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.35);
+      pointer-events: none;
+    }
     }
   </style>
 </head>
 <body>
-<canvas id="game" width="960" height="540"></canvas>
+<div id="wrap">
+  <canvas id="game" width="960" height="540"></canvas>
+
+  <div id="touch-ui" aria-hidden="true">
+    <div class="hint">手机触控：左侧移动 / 右侧出招</div>
+    <div class="pad">
+      <button class="btn" data-key="a">左</button>
+      <button class="btn" data-key="d">右</button>
+      <button class="btn" data-key="w">跳</button>
+      <button class="btn" data-key="j">轻</button>
+    </div>
+    <div class="skillpad">
+      <button class="btn big" data-key="k">重击</button>
+      <button class="btn big" data-key="u">技能</button>
+      <button class="btn big" data-key="i">冲刺</button>
+      <button class="btn big" data-key="r">重开</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (() => {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('wrap');
+  const touchUI = document.getElementById('touch-ui');
+  const buttons = Array.from(document.querySelectorAll('[data-key]'));
+
+  function shouldShowTouchUI() {
+    // 只在“真实触屏设备”显示：需要同时满足有触摸点 + 粗指针（手指）
+    return (
+      navigator.maxTouchPoints > 0 &&
+      window.matchMedia('(pointer: coarse)').matches &&
+      window.matchMedia('(hover: none)').matches
+    );
+  }
+
+  function updateTouchUIVisibility() {
+    touchUI.style.display = shouldShowTouchUI() ? 'block' : 'none';
+  }
+
+  updateTouchUIVisibility();
+  window.addEventListener('resize', updateTouchUIVisibility);
+  window.addEventListener('orientationchange', updateTouchUIVisibility);
 
   const W = canvas.width;
   const H = canvas.height;
@@ -40,14 +153,42 @@
   const keys = Object.create(null);
   const pressed = Object.create(null);
 
+  function setKey(key, down) {
+    const k = key.toLowerCase();
+    if (down) {
+      if (!keys[k]) pressed[k] = true;
+      keys[k] = true;
+    } else {
+      keys[k] = false;
+    }
+  }
+
   window.addEventListener('keydown', e => {
     const k = e.key.toLowerCase();
     if (!keys[k]) pressed[k] = true;
     keys[k] = true;
-    if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())) e.preventDefault();
+    if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
   });
   window.addEventListener('keyup', e => {
     keys[e.key.toLowerCase()] = false;
+  });
+
+  buttons.forEach(btn => {
+    const key = btn.dataset.key;
+    const down = e => {
+      e.preventDefault();
+      btn.classList.add('active');
+      setKey(key, true);
+    };
+    const up = e => {
+      e.preventDefault();
+      btn.classList.remove('active');
+      setKey(key, false);
+    };
+    btn.addEventListener('pointerdown', down);
+    btn.addEventListener('pointerup', up);
+    btn.addEventListener('pointerleave', up);
+    btn.addEventListener('pointercancel', up);
   });
 
   function consumePressed(k) {
@@ -134,7 +275,6 @@
       this.controls = controls;
       this.ai = ai;
       if (ai) {
-        // 让 AI 稍微更像高手：更快、更敢贴身
         this.speed = 3.55;
         this.jumpPower = 13.6;
       }
@@ -336,20 +476,15 @@
       const playerRecovering = p.hitstun > 0 || p.state === 'attack' || p.state === 'cast' || p.state === 'dash';
 
       this.facing = dx >= 0 ? 1 : -1;
-
-      // 更短的决策间隔，让它看起来像“真在盯人”
       this.aiThink--;
       if (this.aiThink > 0) return;
       this.aiThink = 2 + Math.floor(Math.random() * 4);
 
       if (this.hitstun > 0) return;
 
-      // 低血时更谨慎，但仍然尽量保持压迫，不轻易跑远
       const lowHp = this.hp < 32;
 
-      // ===== 1. 近身压制：优先找输出窗口 =====
       if (playerClose) {
-        // 对方刚出招/收招，直接抓硬直
         if (playerRecovering || Math.random() < 0.55) {
           const useHeavy = Math.random() < (lowHp ? 0.35 : 0.5);
           this.startAttack(useHeavy ? 'heavy' : 'light');
@@ -357,7 +492,6 @@
           return;
         }
 
-        // 贴脸时做微小位移，像高手卡距离压人
         const micro = Math.random() < 0.5 ? 1 : -1;
         if (Math.abs(dx) > 28) {
           this.vx += (dx > 0 ? 1 : -1) * this.speed * 0.95;
@@ -365,7 +499,6 @@
           this.vx += micro * this.speed * 0.22;
         }
 
-        // 偶尔直接跳压或冲刺压迫
         if (this.onGround && Math.random() < 0.14) {
           this.jump();
           if (Math.random() < 0.7) this.startAttack('light');
@@ -383,25 +516,20 @@
         }
       }
 
-      // ===== 2. 中距离：追击 + 预判跳跃 =====
       if (playerMid) {
-        // 始终向前逼近，不给喘息空间
         this.vx += (dx > 0 ? 1 : -1) * this.speed * 1.05;
 
-        // 对方在空中时，优先抢空/追空
         if (playerAir && this.onGround && Math.random() < 0.42) {
           this.jump();
           if (Math.random() < 0.8) this.startAttack('light');
           return;
         }
 
-        // 有蓝就敢用远程逼你动
         if (this.mana >= 35 && Math.random() < 0.32) {
           this.castProjectile(projectiles);
           return;
         }
 
-        // 逼近后立刻开打
         if (adx < 110 && Math.random() < 0.72) {
           this.startAttack(Math.random() < 0.6 ? 'light' : 'heavy');
           return;
@@ -413,7 +541,6 @@
         }
       }
 
-      // ===== 3. 远距离：快速回到压制区 =====
       if (playerFar) {
         this.vx += (dx > 0 ? 1 : -1) * this.speed * 1.15;
 
@@ -432,7 +559,6 @@
         }
       }
 
-      // ===== 4. 通用反应：对手动作结束后补刀 =====
       if (playerRecovering && adx < 120) {
         if (Math.random() < 0.7) {
           this.startAttack(adx < 70 ? 'heavy' : 'light');
@@ -444,7 +570,6 @@
         }
       }
 
-      // ===== 5. 兜底：不让自己站着发呆 =====
       if (Math.abs(this.vx) < 0.2) {
         this.vx += (dx > 0 ? 1 : -1) * this.speed * 0.45;
       }
@@ -463,7 +588,6 @@
       ctx.scale(flip ? -1 : 1, 1);
       ctx.translate(-this.w / 2, -this.h / 2);
 
-      // soft shadow
       ctx.globalAlpha = 0.22;
       ctx.fillStyle = '#694d7d';
       ctx.beginPath();
@@ -471,7 +595,6 @@
       ctx.fill();
       ctx.globalAlpha = 1;
 
-      // body aura
       if (this.mana >= 80) {
         ctx.save();
         ctx.globalAlpha = 0.16;
@@ -485,7 +608,6 @@
       const runStep = this.state === 'run' ? Math.sin(performance.now() / 70) * 3.2 : 0;
       const sway = this.state === 'jump' ? -4 : this.state === 'fall' ? 4 : 0;
 
-      // hair back
       ctx.fillStyle = this.palette.hair;
       ctx.beginPath();
       ctx.roundRect(5, 6, 36, 46, 16);
@@ -494,7 +616,6 @@
       ctx.ellipse(23, 28, 19, 24, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // long hair strands
       ctx.save();
       ctx.fillStyle = shade(this.palette.hair, 10);
       ctx.beginPath();
@@ -511,7 +632,6 @@
       ctx.fill();
       ctx.restore();
 
-      // bangs
       ctx.fillStyle = this.palette.hair;
       ctx.beginPath();
       ctx.moveTo(8, 18);
@@ -521,13 +641,11 @@
       ctx.quadraticCurveTo(13, 22, 8, 18);
       ctx.fill();
 
-      // face
       ctx.fillStyle = '#ffd8c5';
       ctx.beginPath();
       ctx.ellipse(23, 23, 13, 15, sway * 0.02, 0, Math.PI * 2);
       ctx.fill();
 
-      // eyes
       ctx.fillStyle = '#333';
       ctx.beginPath();
       ctx.ellipse(18, 22, 2.7, 3.7, 0, 0, Math.PI * 2);
@@ -539,14 +657,12 @@
       ctx.arc(27.2, 20.9, 0.9, 0, Math.PI * 2);
       ctx.fill();
 
-      // blush
       ctx.fillStyle = 'rgba(255,145,182,0.45)';
       ctx.beginPath();
       ctx.ellipse(13.5, 28, 3.8, 2.3, 0, 0, Math.PI * 2);
       ctx.ellipse(32.5, 28, 3.8, 2.3, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // mouth
       ctx.strokeStyle = '#a45a6d';
       ctx.lineWidth = 1.6;
       ctx.beginPath();
@@ -554,7 +670,6 @@
       ctx.quadraticCurveTo(23, 33, 25.5, 31);
       ctx.stroke();
 
-      // ribbon / accessory based on palette
       ctx.fillStyle = this.palette.ribbon;
       ctx.beginPath();
       ctx.moveTo(21, 9);
@@ -573,7 +688,6 @@
       ctx.arc(23, 8.8, 2.2, 0, Math.PI * 2);
       ctx.fill();
 
-      // arms
       const atk = this.state === 'attack' ? this.attackFrame : 0;
       const swing = this.attackType === 'heavy' ? Math.min(1, Math.max(0, (atk - 5) / 8)) : Math.min(1, Math.max(0, (atk - 4) / 6));
       const armY = 34 + (this.state === 'hit' ? 5 : 0);
@@ -595,7 +709,6 @@
       ctx.fill();
       ctx.restore();
 
-      // dress / upper clothing
       ctx.fillStyle = this.palette.dress;
       ctx.beginPath();
       ctx.roundRect(8, 34, 30, 36, 12);
@@ -609,7 +722,6 @@
       ctx.roundRect(11, 37, 6, 34, 3);
       ctx.fill();
 
-      // skirt flare
       ctx.fillStyle = shade(this.palette.dress, -10);
       ctx.beginPath();
       ctx.moveTo(8, 66);
@@ -617,7 +729,6 @@
       ctx.lineTo(8, 66);
       ctx.fill();
 
-      // legs / stockings
       ctx.fillStyle = '#f7d5e7';
       ctx.fillRect(13 + runStep, 66, 9, 20);
       ctx.fillRect(24 - runStep, 66, 9, 20);
@@ -625,7 +736,6 @@
       ctx.fillRect(13 + runStep, 72, 9, 12);
       ctx.fillRect(24 - runStep, 72, 9, 12);
 
-      // shoes
       ctx.fillStyle = this.palette.shoe;
       ctx.beginPath();
       ctx.roundRect(10 + runStep, 84, 14, 7, 4);
@@ -634,7 +744,6 @@
       ctx.roundRect(22 - runStep, 84, 14, 7, 4);
       ctx.fill();
 
-      // attack effect
       if (this.state === 'attack') {
         ctx.save();
         ctx.globalAlpha = 0.45;
@@ -693,7 +802,6 @@
   }
 
   function drawStage() {
-    // sky glow
     const sky = ctx.createLinearGradient(0, 0, 0, H);
     sky.addColorStop(0, '#ffe1f1');
     sky.addColorStop(0.42, '#ebddff');
@@ -701,7 +809,6 @@
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
-    // clouds / hearts
     ctx.save();
     ctx.globalAlpha = 0.18;
     ctx.fillStyle = '#ffffff';
@@ -726,7 +833,6 @@
     }
     ctx.restore();
 
-    // distant stage buildings
     ctx.save();
     ctx.globalAlpha = 0.32;
     ctx.fillStyle = '#f2c9e7';
@@ -739,14 +845,12 @@
     ctx.fill();
     ctx.restore();
 
-    // stage floor
     const floor = ctx.createLinearGradient(0, GROUND_Y, 0, H);
     floor.addColorStop(0, '#f5d8ea');
     floor.addColorStop(1, '#d7c7ff');
     ctx.fillStyle = floor;
     ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
 
-    // decorative border
     ctx.strokeStyle = 'rgba(255,255,255,0.42)';
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -754,7 +858,6 @@
     ctx.lineTo(W, GROUND_Y + 1);
     ctx.stroke();
 
-    // sparkly floor pattern
     ctx.save();
     ctx.globalAlpha = 0.18;
     ctx.strokeStyle = '#ffffff';
@@ -766,7 +869,6 @@
     }
     ctx.restore();
 
-    // center glow
     ctx.save();
     const glow = ctx.createRadialGradient(W / 2, GROUND_Y + 20, 20, W / 2, GROUND_Y + 40, 260);
     glow.addColorStop(0, 'rgba(255,255,255,0.18)');
